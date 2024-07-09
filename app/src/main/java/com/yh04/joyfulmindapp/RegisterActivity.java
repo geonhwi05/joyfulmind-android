@@ -111,6 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putString("token", userRes.accessToken);
                             editor.apply();
+                            editor.commit();
 
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             startActivity(intent);

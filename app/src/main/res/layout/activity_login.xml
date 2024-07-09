@@ -1,27 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8E8C0"
+    android:background="#FFFFFF"
     tools:context=".LoginActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"></LinearLayout>
 
     <LinearLayout
-        android:id="@+id/inputFieldsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:orientation="vertical">
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp">
 
         <TextView
             android:id="@+id/logoTextView"
+            style="@style/Widget.AppCompat.TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="false"
-            android:layout_centerHorizontal="false"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
             android:text="JoyfulMind"
             android:textColor="#F4C542"
             android:textSize="36sp"
@@ -33,60 +36,58 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:background="@drawable/edit_text_background"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="10dp"
             android:hint="이메일"
             android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:padding="16dp"
+            android:textColor="#000"
+            android:textColorHint="#888" />
 
         <EditText
             android:id="@+id/editPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/edit_text_background"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="10dp"
             android:hint="비밀번호"
             android:inputType="textPassword"
+            android:padding="16dp"
+            android:textColor="#000"
+            android:textColorHint="#888" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_background" />
+            android:backgroundTint="#F4D26B"
+            android:padding="16dp"
+            android:text="Log In"
+            android:textColor="#F8E8C0"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/googleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#F4D26B"
+            android:padding="16dp"
+            android:text="Google"
+            android:textColor="#F8E8C0"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#F4D26B"
+            android:padding="16dp"
+            android:text="Sign up"
+            android:textColor="#F8E8C0"
+            android:textStyle="bold" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/inputFieldsLayout"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/button_background"
-        android:text="Log In"
-        android:textColor="#F4C542"
-        android:textStyle="bold"
-        android:padding="16dp" />
-
-    <Button
-        android:id="@+id/googleButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnLogin"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/button_background"
-        android:text="Google"
-        android:textColor="#F4C542"
-        android:textStyle="bold"
-        android:padding="16dp" />
-
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/googleButton"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/button_background"
-        android:text="Sign up"
-        android:textColor="#F4C542"
-        android:textStyle="bold"
-        android:padding="16dp" />
 </RelativeLayout>

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -51,4 +52,11 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment:2.5.3")
 
     implementation("androidx.navigation:navigation-ui:2.5.3")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    implementation("com.google.firebase:firebase-analytics")
+
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 }

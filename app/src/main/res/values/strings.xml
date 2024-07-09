@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">JoyfulMindApp</string>
+    <string name="app_name">JoyfulMind</string>
+    <string name="login">Log In</string>
+    <string name="signup">Sign up</string>
+    <string name="google_login">Google</string>
+    <string name="email_hint">이메일</string>
+    <string name="password_hint">비밀번호</string>
 </resources>
