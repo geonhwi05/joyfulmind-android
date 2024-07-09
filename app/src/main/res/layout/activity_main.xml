@@ -29,9 +29,9 @@
 
     <!-- 사용자 이름 입력 필드 -->
     <EditText
-        android:id="@+id/username_edittext"
+        android:id="@+id/editNick"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/edit_text_background"
@@ -42,37 +42,29 @@
     <!-- 조이와 대화하러 가기 버튼 -->
 
     <!-- 일기 작성하기 버튼 -->
+
     <Button
-        android:id="@+id/chat_button"
+        android:id="@+id/btnChat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/button_background"
-        android:drawableLeft="@android:drawable/ic_menu_save"
-        android:foregroundTint="#FFFFFF"
-        android:padding="16dp"
-        android:text="조이와 대화하러 가기"
-        android:textSize="20sp"
-        app:iconTint="#FFFFFF" />
+        android:text="Button" />
 
     <Button
         android:id="@+id/diary_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="일기 작성하기"
         android:layout_marginBottom="16dp"
-        android:drawableLeft="@drawable/ic_diary_icon"
+        android:background="@drawable/button_background"
         android:padding="16dp"
-        android:background="@drawable/button_background" />
+        android:text="일기 작성하기" />
 
     <!-- 감정 분석하기 버튼 -->
     <Button
         android:id="@+id/analysis_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="감정 분석하기"
-        android:drawableLeft="@drawable/ic_analysis_icon"
+        android:background="@drawable/button_background"
         android:padding="16dp"
-        android:background="@drawable/button_background" />
+        android:text="감정 분석하기" />
 
 </LinearLayout>
