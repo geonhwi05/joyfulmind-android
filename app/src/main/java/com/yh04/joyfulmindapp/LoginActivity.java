@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +11,11 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,8 +41,10 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText editEmail;
     EditText editPassword;
-    Button btnLogin;
-    Button btnRegister;
+    ImageView ImgLogin;
+    ImageView ImgLogin2;
+
+    TextView txtRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +54,11 @@ public class LoginActivity extends AppCompatActivity {
 
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
+        ImgLogin = findViewById(R.id.ImgLogin);
+        ImgLogin2 = findViewById(R.id.ImgLogin2);
+        txtRegister = findViewById(R.id.txtRegister);
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        ImgLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = editEmail.getText().toString().trim();
@@ -60,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 // 이메일과 패스워드는 필수다.
 
                 if(email.isEmpty() || password.isEmpty()){
-                    Snackbar.make(btnLogin,
+                    Snackbar.make(ImgLogin,
                             "필수 항목입니다. 모두 입력하세요.",
                             Snackbar.LENGTH_SHORT).show();
                     return;
@@ -69,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                 // 이메일 형식 체크
                 Pattern pattern = Patterns.EMAIL_ADDRESS;
                 if(pattern.matcher(email).matches() == false){
-                    Snackbar.make(btnLogin,
+                    Snackbar.make(ImgLogin,
                             "이메일 형식을 바르게 작성하세요.",
                             Snackbar.LENGTH_SHORT).show();
                     return;
@@ -100,11 +107,13 @@ public class LoginActivity extends AppCompatActivity {
                             editor.commit();
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("token", userRes.accessToken);
                             startActivity(intent);
 
                             finish();
 
                         }else{
+                            Toast.makeText(LoginActivity.this, "로그인 실패: " + response.message(), Toast.LENGTH_SHORT).show();
 
                         }
 
@@ -119,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
+        txtRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);

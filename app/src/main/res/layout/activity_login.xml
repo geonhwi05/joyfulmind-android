@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@drawable/backgroundcolor"
     tools:context=".LoginActivity">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"></LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,26 +15,25 @@
         android:orientation="vertical"
         android:padding="32dp">
 
-        <TextView
-            android:id="@+id/logoTextView"
-            style="@style/Widget.AppCompat.TextView"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/imageView19"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="JoyfulMind"
-            android:textColor="#F4C542"
-            android:textSize="36sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="30sp"
+            android:layout_marginBottom="40sp"
+            app:srcCompat="@drawable/joyfulmind2" />
 
         <EditText
             android:id="@+id/editEmail"
-            android:layout_width="match_parent"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/edit_text_background"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#FFFFFF"
             android:drawableStart="@drawable/ic_email"
             android:drawablePadding="10dp"
-            android:hint="이메일"
+            android:hint="email"
             android:inputType="textEmailAddress"
             android:padding="16dp"
             android:textColor="#000"
@@ -46,48 +41,47 @@
 
         <EditText
             android:id="@+id/editPassword"
-            android:layout_width="match_parent"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:background="@drawable/edit_text_background"
+            android:background="@drawable/round"
+            android:backgroundTint="#FFFFFF"
             android:drawableStart="@drawable/ic_lock"
             android:drawablePadding="10dp"
-            android:hint="비밀번호"
+            android:hint="password"
             android:inputType="textPassword"
             android:padding="16dp"
             android:textColor="#000"
             android:textColorHint="#888" />
 
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/ImgLogin"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#F4D26B"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="30dp"
+            app:srcCompat="@drawable/login" />
+
+        <ImageView
+            android:id="@+id/ImgLogin2"
+            android:layout_width="272dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/logingoogle" />
+
+        <TextView
+            android:id="@+id/txtRegister"
+            android:layout_width="330dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/backgroundcolor"
+            android:backgroundTint="#00FFFFFF"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
             android:padding="16dp"
-            android:text="Log In"
-            android:textColor="#F8E8C0"
+            android:text="Don't have an account? sign up 🌈"
+            android:textColor="#EFD893"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/googleButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="#F4D26B"
-            android:padding="16dp"
-            android:text="Google"
-            android:textColor="#F8E8C0"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#F4D26B"
-            android:padding="16dp"
-            android:text="Sign up"
-            android:textColor="#F8E8C0"
-            android:textStyle="bold" />
     </LinearLayout>
 </RelativeLayout>

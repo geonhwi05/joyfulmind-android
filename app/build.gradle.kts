@@ -28,6 +28,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -63,8 +67,11 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore-ktx:23.0.3")
     implementation("com.google.firebase:firebase-storage")
+    implementation ("com.google.firebase:firebase-firestore:21.4.3")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+    implementation ("androidx.viewpager2:viewpager2:1.1.0-beta01")
 }
