@@ -24,7 +24,7 @@ public class UserRes {
         this.message = message;
     }
 
-    // Getters and setters if needed
+    // Getters and setters
     public String getResult() {
         return result;
     }
@@ -47,5 +47,13 @@ public class UserRes {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkClient {
 
     public static Retrofit retrofit;
-
+    private static Retrofit retrofit2;
     public static Retrofit getRetrofitClient(Context context){
         if(retrofit == null){
             // 통신 로그 확인할때 필요한 코드
@@ -39,5 +39,27 @@ public class NetworkClient {
         }
         return retrofit;
     }
+
+    public static Retrofit getRetrofitClient2(Context context){
+        if(retrofit2 == null){
+            HttpLoggingInterceptor loggingInterceptor =
+                    new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .addInterceptor(loggingInterceptor)
+                    .build();
+            retrofit2 = new Retrofit.Builder()
+                    .baseUrl(Config.CHATDOMAIN)
+                    .client(httpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return retrofit2;
+    }
+
 
 }

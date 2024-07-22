@@ -1,7 +1,5 @@
 package com.yh04.joyfulmindapp.adapter;
 
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.yh04.joyfulmindapp.R;
 import com.yh04.joyfulmindapp.model.ChatMessage;
 
@@ -33,22 +30,26 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).getNickname() != null && chatMessages.get(position).getNickname().equals(currentUser)) {
-            return 0;
+        ChatMessage message = chatMessages.get(position);
+        if (message.getNickname() != null && message.getNickname().equals(currentUser)) {
+            return 0; // 사용자의 메시지
+        } else if (message.getNickname() != null && message.getNickname().equals("조이")) {
+            return 1; // 조이의 메시지
         } else {
-            return 1;
+            return -1; // 기본 값 또는 오류 처리
         }
     }
+
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == 0) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.myimagechat_row, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mychat_row, parent, false);
             return new MyChatViewHolder(view);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.otherimagechat_row, parent, false);
-            return new OtherChatViewHolder(view);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.joychat_row, parent, false);
+            return new JoyChatViewHolder(view);
         }
     }
 
@@ -58,7 +59,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder instanceof MyChatViewHolder) {
             ((MyChatViewHolder) holder).bind(chatMessage);
         } else {
-            ((OtherChatViewHolder) holder).bind(chatMessage);
+            ((JoyChatViewHolder) holder).bind(chatMessage);
         }
     }
 
@@ -68,80 +69,35 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class MyChatViewHolder extends RecyclerView.ViewHolder {
-        TextView txtMessage, txtTime, txtName;
+        TextView txtMyMessage, txtMyTime, txtMyName;
         ImageView imgMessage;
-        CircleImageView profileImage; // 프로필 이미지 뷰 추가
+        CircleImageView profileImage;
 
         public MyChatViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtMessage = itemView.findViewById(R.id.txtMyMessage);
-            txtTime = itemView.findViewById(R.id.txtMyTime);
-            txtName = itemView.findViewById(R.id.txtMyName);
+            txtMyMessage = itemView.findViewById(R.id.txtMyMessage);
+            txtMyTime = itemView.findViewById(R.id.txtMyTime);
+            txtMyName = itemView.findViewById(R.id.txtMyName);
             imgMessage = itemView.findViewById(R.id.imgMessage);
-            profileImage = itemView.findViewById(R.id.profileImage); // 프로필 이미지 뷰 초기화
+            profileImage = itemView.findViewById(R.id.profileImage);
         }
 
         public void bind(ChatMessage chatMessage) {
-            txtName.setText(chatMessage.getNickname());
-            txtTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(chatMessage.getTimestamp().toDate()));
+            txtMyName.setText(chatMessage.getNickname());
+            txtMyTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(chatMessage.getTimestamp().toDate()));
 
             if (chatMessage.getMessage() != null) {
-                txtMessage.setVisibility(View.VISIBLE);
-                txtMessage.setText(chatMessage.getMessage());
+                txtMyMessage.setVisibility(View.VISIBLE);
+                txtMyMessage.setText(chatMessage.getMessage());
                 imgMessage.setVisibility(View.GONE);
             } else {
-                txtMessage.setVisibility(View.GONE);
+                txtMyMessage.setVisibility(View.GONE);
                 imgMessage.setVisibility(View.GONE);
             }
 
-//            // 프로필 이미지 로드
+            // 프로필 이미지 로드 (필요 시 주석 해제)
 //            String profileImageUrl = chatMessage.getProfileImageUrl();
-//            Log.d("ChatAdapter", "Loading profile image: " + profileImageUrl); // 로그 추가
-//
-//            if (!TextUtils.isEmpty(profileImageUrl)) {
-//                Glide.with(profileImage.getContext())
-//                        .load(profileImageUrl)
-//                        .placeholder(R.drawable.default_profile_image)
-//                        .error(R.drawable.default_profile_image)
-//                        .into(profileImage);
-//            } else {
-//                profileImage.setImageResource(R.drawable.default_profile_image);
-            }
-        }
-
-
-    static class OtherChatViewHolder extends RecyclerView.ViewHolder {
-        TextView txtMessage, txtTime, txtName;
-        ImageView imgMessage;
-        CircleImageView profileImage; // 프로필 이미지 뷰 추가
-
-        public OtherChatViewHolder(@NonNull View itemView) {
-            super(itemView);
-            txtMessage = itemView.findViewById(R.id.txtOtherMessage);
-            txtTime = itemView.findViewById(R.id.txtOtherTime);
-            txtName = itemView.findViewById(R.id.txtOtherName);
-            imgMessage = itemView.findViewById(R.id.imgMessageOther);
-            profileImage = itemView.findViewById(R.id.profileImage); // 프로필 이미지 뷰 초기화
-        }
-
-        public void bind(ChatMessage chatMessage) {
-            txtName.setText(chatMessage.getNickname());
-            txtTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(chatMessage.getTimestamp().toDate()));
-
-            if (chatMessage.getMessage() != null) {
-                txtMessage.setVisibility(View.VISIBLE);
-                txtMessage.setText(chatMessage.getMessage());
-                imgMessage.setVisibility(View.GONE);
-            } else {
-                txtMessage.setVisibility(View.GONE);
-                imgMessage.setVisibility(View.GONE);
-            }
-
-//            // 프로필 이미지 로드
-//            String profileImageUrl = chatMessage.getProfileImageUrl();
-//            Log.d("ChatAdapter", "Loading profile image: " + profileImageUrl); // 로그 추가
-//
-//            if (!TextUtils.isEmpty(profileImageUrl)) {
+//            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
 //                Glide.with(profileImage.getContext())
 //                        .load(profileImageUrl)
 //                        .placeholder(R.drawable.default_profile_image)
@@ -152,5 +108,45 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //            }
         }
     }
-    }
 
+    static class JoyChatViewHolder extends RecyclerView.ViewHolder {
+        TextView txtJoyMessage, txtJoyTime, txtJoyName;
+        ImageView imgMessageJoy;
+        CircleImageView profileImage;
+
+        public JoyChatViewHolder(@NonNull View itemView) {
+            super(itemView);
+            txtJoyMessage = itemView.findViewById(R.id.txtJoyMessage);
+            txtJoyTime = itemView.findViewById(R.id.txtJoyTime);
+            txtJoyName = itemView.findViewById(R.id.txtJoyName);
+            imgMessageJoy = itemView.findViewById(R.id.imgMessageJoy);
+            profileImage = itemView.findViewById(R.id.profileImage);
+        }
+
+        public void bind(ChatMessage chatMessage) {
+            txtJoyName.setText(chatMessage.getNickname());
+            txtJoyTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(chatMessage.getTimestamp().toDate()));
+
+            if (chatMessage.getMessage() != null) {
+                txtJoyMessage.setVisibility(View.VISIBLE);
+                txtJoyMessage.setText(chatMessage.getMessage());
+                imgMessageJoy.setVisibility(View.GONE);
+            } else {
+                txtJoyMessage.setVisibility(View.GONE);
+                imgMessageJoy.setVisibility(View.GONE);
+            }
+
+            // 프로필 이미지 로드 (필요 시 주석 해제)
+//            String profileImageUrl = chatMessage.getProfileImageUrl();
+//            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+//                Glide.with(profileImage.getContext())
+//                        .load(profileImageUrl)
+//                        .placeholder(R.drawable.default_profile_image)
+//                        .error(R.drawable.default_profile_image)
+//                        .into(profileImage);
+//            } else {
+//                profileImage.setImageResource(R.drawable.default_profile_image);
+//            }
+        }
+    }
+}
