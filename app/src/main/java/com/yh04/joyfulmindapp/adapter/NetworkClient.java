@@ -15,6 +15,8 @@ public class NetworkClient {
 
     public static Retrofit retrofit;
     private static Retrofit retrofit2;
+    private static Retrofit googleMapRetrofit;
+
     public static Retrofit getRetrofitClient(Context context){
         if(retrofit == null){
             // 통신 로그 확인할때 필요한 코드
@@ -61,5 +63,24 @@ public class NetworkClient {
         return retrofit2;
     }
 
+    public static Retrofit getGoogleMapRetrofitClient(Context context){
+        if(googleMapRetrofit == null){
+            HttpLoggingInterceptor loggingInterceptor =
+                    new HttpLoggingInterceptor();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .addInterceptor(loggingInterceptor)
+                    .build();
+            googleMapRetrofit = new Retrofit.Builder()
+                    .baseUrl(Config.PLACEDOMAIN)
+                    .client(httpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return googleMapRetrofit;
+    }
 }

@@ -2,7 +2,23 @@ plugins {
 //    alias(libs.plugins.android.application)
     id("com.android.application")
     id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
+
+    // Configure which keys should be ignored by the plugin by providing regular expressions.
+    // "sdk.dir" is ignored by default.
+    ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
+    ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
+}
+
 
 android {
     namespace = "com.yh04.joyfulmindapp"
@@ -10,13 +26,14 @@ android {
 
     defaultConfig {
         applicationId = "com.yh04.joyfulmindapp"
-        minSdk = 23
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
 
     buildTypes {
         release {
@@ -40,6 +57,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(files("libs\\com.skt.Tmap_1.76.jar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -69,9 +87,21 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation ("com.google.firebase:firebase-firestore:21.4.3")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.firebase:firebase-auth:23.0.0")
 
-    implementation("com.github.bumptech.glide:glide:4.12.0")
+    // tmap 라이브러리들
+    implementation(files("libs\\com.skt.Tmap_1.76.jar"))
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    implementation("androidx.navigation:navigation-fragment:2.7.7")
+    implementation("androidx.navigation:navigation-ui:2.7.7")
+
+
+
+
     implementation("de.hdodenhof:circleimageview:3.1.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("androidx.viewpager2:viewpager2:1.1.0-beta01")
+    implementation ("com.github.prolificinteractive:material-calendarview:2.0.1")
 }

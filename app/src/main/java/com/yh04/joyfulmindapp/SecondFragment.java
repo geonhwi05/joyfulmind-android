@@ -1,12 +1,13 @@
 package com.yh04.joyfulmindapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +60,19 @@ public class SecondFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_second, container, false);
+        View view = inflater.inflate(R.layout.fragment_second, container, false);
+
+        // 이미지뷰 클릭 리스너 설정
+        ImageView walkImageView = view.findViewById(R.id.walk);
+        walkImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // PlaceActivity로 이동하는 Intent 생성
+                Intent intent = new Intent(getActivity(), PlaceActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        return view;
     }
 }

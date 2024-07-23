@@ -63,10 +63,10 @@
             app:srcCompat="@drawable/login" />
 
         <ImageView
-            android:id="@+id/ImgLogin2"
-            android:layout_width="272dp"
+            android:id="@+id/naverLogin"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/logingoogle" />
+            app:srcCompat="@drawable/naver" />
 
         <TextView
             android:id="@+id/txtRegister"

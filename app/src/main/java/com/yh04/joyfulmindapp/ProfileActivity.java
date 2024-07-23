@@ -61,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
             token = sp.getString("token", null);
         }
 
-        editText = findViewById(R.id.editText);
+        editText = findViewById(R.id.txtTitle);
         textViewEmail = findViewById(R.id.textViewemail);
         textViewGender = findViewById(R.id.textViewgender);
         textViewAge = findViewById(R.id.textViewage);

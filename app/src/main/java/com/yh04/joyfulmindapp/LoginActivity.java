@@ -1,6 +1,5 @@
 package com.yh04.joyfulmindapp;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,19 +8,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
@@ -42,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText editEmail;
     EditText editPassword;
     ImageView ImgLogin;
-    ImageView ImgLogin2;
+    ImageView naverLogin;
 
     TextView txtRegister;
 
@@ -55,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
         ImgLogin = findViewById(R.id.ImgLogin);
-        ImgLogin2 = findViewById(R.id.ImgLogin2);
+        naverLogin = findViewById(R.id.naverLogin);
         txtRegister = findViewById(R.id.txtRegister);
 
         ImgLogin.setOnClickListener(new View.OnClickListener() {
@@ -152,4 +145,6 @@ public class LoginActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
+
+
 }

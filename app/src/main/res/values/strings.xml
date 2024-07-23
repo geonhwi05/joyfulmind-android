@@ -5,10 +5,9 @@
     <string name="google_login">Google</string>
     <string name="email_hint">이메일</string>
     <string name="password_hint">비밀번호</string>
-    <string name="success_login">구글 로그인 성공</string>
-    <string name="failed_login">구글 로그인 실패</string>
-    <string name="success_logout">로그아웃 되었습니다</string>
-    <string name="status_login">이미 로그인 되어있습니다</string>
+    <string name="naver_client_id">YUB2z6Fr5O28qkrrV8W6</string>
+    <string name="naver_client_secret">NniILutY2c</string>
+    <string name="naver_client_name">joyfulmind</string>
     <string name="greeting_message">"user name"님\n오늘 하루는 어땠나요?</string>
     <string name="chatting_with_joy">Chatting with joy</string>
     <string name="taking_a_walk">Taking a walk</string>
