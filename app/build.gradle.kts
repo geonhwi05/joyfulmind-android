@@ -98,7 +98,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.7.7")
 
 
-
+    implementation ("com.navercorp.nid:oauth:5.9.1")
 
     implementation("de.hdodenhof:circleimageview:3.1.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")

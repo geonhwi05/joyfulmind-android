@@ -62,11 +62,21 @@
             android:layout_marginBottom="30dp"
             app:srcCompat="@drawable/login" />
 
-        <ImageView
-            android:id="@+id/naverLogin"
-            android:layout_width="wrap_content"
+        <com.navercorp.nid.oauth.view.NidOAuthLoginButton
+            android:id="@+id/btn_login"
+            android:layout_width="400dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="50dp"
+            android:contentDescription="naverlogin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/naver" />
+            android:text="네이버로그인액세스토큰" />
 
         <TextView
             android:id="@+id/txtRegister"
@@ -78,7 +88,7 @@
             android:fontFamily="sans-serif-light"
             android:gravity="center"
             android:padding="16dp"
-            android:text="Don't have an account? sign up 🌈"
+            android:text="Don't have an account? sign up"
             android:textColor="#EFD893"
             android:textSize="17sp"
             android:textStyle="bold" />
