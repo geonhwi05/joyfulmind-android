@@ -14,5 +14,4 @@ public class Config {
 
     public static final String FILE_PROVIDER = "com.yh04.joyfulmindapp.fileprovider";
 
-
 }
