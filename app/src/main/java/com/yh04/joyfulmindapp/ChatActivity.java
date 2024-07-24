@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,6 +51,11 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // SharedPreferences에서 토큰 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
@@ -168,5 +175,14 @@ public class ChatActivity extends AppCompatActivity {
                 Log.e("ChatApi", "API 호출 실패: " + throwable.getMessage());
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

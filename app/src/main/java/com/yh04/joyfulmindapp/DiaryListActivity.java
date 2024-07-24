@@ -3,6 +3,7 @@ package com.yh04.joyfulmindapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -50,6 +51,11 @@ public class DiaryListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_list);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         calendarView = findViewById(R.id.cv_calendar);
         recyclerView = findViewById(R.id.recyclerView);
@@ -147,5 +153,14 @@ public class DiaryListActivity extends AppCompatActivity {
     private String getTokenFromSharedPreferences() {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         return sp.getString("token", "");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
