@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (token != null) {
             getUserProfile(token);
         } else {
-            Toast.makeText(this, "액세스 토큰을 받지 못했습니다.", Toast.LENGTH_SHORT).show();
+
         }
     }
 
