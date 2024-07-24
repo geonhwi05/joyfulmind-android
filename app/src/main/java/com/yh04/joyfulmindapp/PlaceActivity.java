@@ -2,6 +2,7 @@ package com.yh04.joyfulmindapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -156,8 +157,11 @@ public class PlaceActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            Intent intent = new Intent(PlaceActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
