@@ -53,6 +53,8 @@
             android:layout_height="24dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="15dp"
             android:contentDescription="@string/delete"
             android:foreground="@drawable/ic_close_foreground"
             android:src="@drawable/ic_close_foreground" />
