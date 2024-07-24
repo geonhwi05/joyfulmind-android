@@ -6,6 +6,7 @@
     <string name="email_hint">이메일</string>
     <string name="password_hint">비밀번호</string>
     <string name="naver_client_id">YUB2z6Fr5O28qkrrV8W6</string>
+    <string name="delete">Delete</string>
     <string name="naver_client_secret">NniILutY2c</string>
     <string name="naver_client_name">joyfulmind</string>
     <string name="greeting_message">"user name"님\n오늘 하루는 어땠나요?</string>

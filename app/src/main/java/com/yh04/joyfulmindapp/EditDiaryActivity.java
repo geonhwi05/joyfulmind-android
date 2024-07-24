@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -11,9 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.DiaryApi;
+import com.yh04.joyfulmindapp.config.Config;
 import com.yh04.joyfulmindapp.model.Diary;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -23,10 +26,9 @@ import retrofit2.Retrofit;
 
 public class EditDiaryActivity extends AppCompatActivity {
 
-    private TextView txtDate;
+    private TextView txtCreatedAt;
     private EditText txtTitle;
     private EditText txtContent;
-    private ImageView imgEdit;
     private ImageView imgSave;
     private Diary diary;
 
@@ -35,47 +37,73 @@ public class EditDiaryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_diary);
 
-        txtDate = findViewById(R.id.txtDate);
+        txtCreatedAt = findViewById(R.id.txtCreatedAt);
         txtTitle = findViewById(R.id.txtTitle);
         txtContent = findViewById(R.id.txtContent);
-        imgEdit = findViewById(R.id.imgEdit);
         imgSave = findViewById(R.id.imgSave);
 
         // 다이어리 객체를 인텐트로부터 가져옴
         diary = (Diary) getIntent().getSerializableExtra("diary");
 
-        // 날짜를 문자열로 포맷
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-        String formattedDate = sdf.format(diary.getDate());
+        if (diary != null) {
+            // 기존 일기를 편집하는 경우
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+            String formattedDate = sdf.format(diary.getCreatedAt());
 
-        txtDate.setText(formattedDate);
-        txtTitle.setText(diary.getTitle());
-        txtContent.setText(diary.getContent());
-
-        imgEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // EditText를 수정 가능하게 변경
-                txtTitle.setEnabled(true);
-                txtContent.setEnabled(true);
-                // Save 버튼을 보이게 함
-                imgSave.setVisibility(View.VISIBLE);
-            }
-        });
+            txtCreatedAt.setText(formattedDate);
+            txtTitle.setText(diary.getTitle());
+            txtContent.setText(diary.getContent());
+        } else {
+            // 새로운 일기를 작성하는 경우
+            txtCreatedAt.setText(new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date()));
+            txtTitle.setText("");
+            txtContent.setText("");
+        }
 
         imgSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                diary.setTitle(txtTitle.getText().toString());
-                diary.setContent(txtContent.getText().toString());
+                if (txtTitle.getText().toString().isEmpty() || txtContent.getText().toString().isEmpty()) {
+                    Toast.makeText(EditDiaryActivity.this, "제목과 내용을 입력하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                updateDiary(diary);
+                if (diary == null) {
+                    // 새로운 일기 생성
+                    Diary newDiary = new Diary();
+                    newDiary.setTitle(txtTitle.getText().toString());
+                    newDiary.setContent(txtContent.getText().toString());
+                    createDiary(newDiary);
+                } else {
+                    // 기존 일기 업데이트
+                    diary.setTitle(txtTitle.getText().toString());
+                    diary.setContent(txtContent.getText().toString());
+                    updateDiary(diary);
+                }
+            }
+        });
+    }
 
-                // 수정 후 EditText를 다시 비활성화
-                txtTitle.setEnabled(false);
-                txtContent.setEnabled(false);
-                // Save 버튼을 다시 숨김
-                imgSave.setVisibility(View.INVISIBLE);
+    private void createDiary(Diary newDiary) {
+        Retrofit retrofit = NetworkClient.getRetrofitClient(this);
+        DiaryApi diaryApi = retrofit.create(DiaryApi.class);
+        String token = getTokenFromSharedPreferences();
+        Call<Void> call = diaryApi.createDiary("Bearer " + token, newDiary);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(EditDiaryActivity.this, "새 일기가 생성되었습니다.", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(EditDiaryActivity.this, "일기 생성을 실패하였습니다", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(EditDiaryActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -83,7 +111,8 @@ public class EditDiaryActivity extends AppCompatActivity {
     private void updateDiary(Diary diary) {
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         DiaryApi diaryApi = retrofit.create(DiaryApi.class);
-        Call<Void> call = diaryApi.updateDiary(diary.getId(), diary);
+        String token = getTokenFromSharedPreferences();
+        Call<Void> call = diaryApi.updateDiary("Bearer " + token, diary.getId(), diary);
 
         call.enqueue(new Callback<Void>() {
             @Override
@@ -101,5 +130,10 @@ public class EditDiaryActivity extends AppCompatActivity {
                 Toast.makeText(EditDiaryActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String getTokenFromSharedPreferences() {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        return sp.getString("token", "");
     }
 }
