@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
         // 액션바 이름 변경
         getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
