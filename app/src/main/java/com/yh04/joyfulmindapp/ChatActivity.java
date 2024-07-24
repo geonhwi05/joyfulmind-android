@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,9 +21,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.yh04.joyfulmindapp.adapter.ChatAdapter;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.ChatApi;
+import com.yh04.joyfulmindapp.api.UserApi;
 import com.yh04.joyfulmindapp.config.Config;
 import com.yh04.joyfulmindapp.model.ChatMessage;
 import com.yh04.joyfulmindapp.model.ChatResponse;
+import com.yh04.joyfulmindapp.model.UserRes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +45,10 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ChatAdapter chatAdapter;
     private String nickname;
+    private String token;
+    private String profileImageUrl;
+
+    private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +60,18 @@ public class ChatActivity extends AppCompatActivity {
         // 액션바에 화살표 백버튼을 표시하는 코드
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // SharedPreferences에서 닉네임 가져오기
+        // SharedPreferences에서 토큰과 프로필 이미지 URL 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        nickname = sp.getString("userNickname", "YourNickname");
-        Log.d("ChatActivity", "Loaded Nickname: " + nickname);
+        token = sp.getString("token", null);
+        profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
+
+        if (token == null) {
+            // 토큰이 없는 경우 로그인 화면으로 이동
+            Intent intent = new Intent(ChatActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         chatMessages = new ArrayList<>();
         editChat = findViewById(R.id.editChat);
@@ -75,8 +90,33 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        chatAdapter = new ChatAdapter(chatMessages, nickname);
-        recyclerView.setAdapter(chatAdapter);
+        fetchUserProfile(); // 사용자 프로필 정보를 가져옴
+    }
+
+    private void fetchUserProfile() {
+        Retrofit retrofit = NetworkClient.getRetrofitClient(ChatActivity.this);
+        UserApi userApi = retrofit.create(UserApi.class);
+        Call<UserRes> call = userApi.getUserProfile("Bearer " + token);
+
+        call.enqueue(new Callback<UserRes>() {
+            @Override
+            public void onResponse(Call<UserRes> call, Response<UserRes> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserRes userRes = response.body();
+                    nickname = userRes.getUser().nickname;
+
+                    chatAdapter = new ChatAdapter(chatMessages, nickname, profileImageUrl);
+                    recyclerView.setAdapter(chatAdapter);
+                } else {
+                    Log.e("ChatActivity", "사용자 정보를 불러오는데 실패했습니다.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserRes> call, Throwable t) {
+                Log.e("ChatActivity", "사용자 정보를 불러오는데 실패했습니다.", t);
+            }
+        });
     }
 
     private void sendMessage() {
@@ -87,7 +127,7 @@ public class ChatActivity extends AppCompatActivity {
 
         String message = editChat.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-            ChatMessage chatMessage = new ChatMessage(nickname, message, Timestamp.now());
+            ChatMessage chatMessage = new ChatMessage(nickname, message, Timestamp.now(), profileImageUrl);
             db.collection("UserChatting").add(chatMessage);
             editChat.setText("");
 
@@ -115,7 +155,7 @@ public class ChatActivity extends AppCompatActivity {
                     Log.d("ChatApi", "응답: " + chatResponse.toString());
 
                     // ChatResponse를 ChatMessage로 변환하여 닉네임을 "조이"로 설정
-                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), Timestamp.now());
+                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), Timestamp.now(), profileImageUrl);
 
                     // 응답 메시지를 JoyChatting 컬렉션에 추가
                     db.collection("JoyChatting").add(responseMessage);
@@ -140,7 +180,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();

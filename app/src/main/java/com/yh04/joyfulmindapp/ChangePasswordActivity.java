@@ -1,11 +1,10 @@
 package com.yh04.joyfulmindapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,12 +12,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.UserApi;
 import com.yh04.joyfulmindapp.model.UserChange;
 import com.yh04.joyfulmindapp.model.UserRes;
 import com.yh04.joyfulmindapp.config.Config;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,8 +36,11 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText newPassword;
     private EditText newPasswordCheck;
     private ImageView imgSave;
+    private CircleImageView profileImage;
 
     private String token;  // JWT 토큰
+    private FirebaseStorage storage;
+    private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +54,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         userApi = retrofit.create(UserApi.class);
+        storage = FirebaseStorage.getInstance();
 
         // SharedPreferences에서 토큰 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
@@ -56,12 +65,27 @@ public class ChangePasswordActivity extends AppCompatActivity {
         newPasswordCheck = findViewById(R.id.newPasswordCheck);
         imgSave = findViewById(R.id.imgSave);
 
+        profileImage = findViewById(R.id.profileImage);
+
+        // SharedPreferences에서 저장된 프로필 이미지 URL 가져오기
+        String savedImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
+        loadProfileImage(savedImageUrl);
+
         imgSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 changePassword();
             }
         });
+    }
+
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.defaultprofileimg) // 이미지 로딩 중에 표시할 임시 이미지
+                .error(R.drawable.defaultprofileimg) // 이미지 로딩 실패 시 표시할 이미지
+                .centerCrop() // 이미지가 ImageView를 꽉 채우도록 설정
+                .into(profileImage);
     }
 
     private void changePassword() {

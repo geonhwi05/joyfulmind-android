@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
     android:layout_marginRight="20dp"
     android:gravity="right"
     android:orientation="horizontal">
@@ -56,7 +55,7 @@
     </LinearLayout>
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profileImage"
+        android:id="@+id/ImageView22"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:src="@drawable/defaultprofileimg"

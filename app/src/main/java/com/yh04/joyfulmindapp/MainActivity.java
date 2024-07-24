@@ -8,13 +8,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
-
+import com.bumptech.glide.Glide;
 import com.navercorp.nid.NaverIdLoginSDK;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.adapter.ViewPager2Adapter;
@@ -30,6 +32,7 @@ import com.yh04.joyfulmindapp.model.UserRes;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     TextView tvBtn3;
     TextView tvBtn4;
     TextView txtUserName;
+
+    ImageView profileImage;
+
+    LinearLayout profileLayout;
 
     private ActivityMainBinding binding;
     private UserApi userApi;
@@ -75,12 +82,30 @@ public class MainActivity extends AppCompatActivity {
 
         // 액션바 이름 변경
         getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
         tvBtn4 = findViewById(R.id.textView3);
         txtUserName = findViewById(R.id.txtUserName);
+        profileImage = findViewById(R.id.profileImage);
+
+        // SharedPreferences에서 저장된 프로필 이미지 URL 가져오기
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String savedImageUrl = sp.getString("profileImageUrl", null);
+        loadProfileImage(savedImageUrl);
+
+        profileLayout = findViewById(R.id.profileLayout);
+
+        profileLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // 뷰페이저2 어댑터 설정
         viewPager2 = findViewById(R.id.viewPager2);
@@ -127,7 +152,22 @@ public class MainActivity extends AppCompatActivity {
         } else if (token != null) {
             getUserProfile(token);
         } else {
+        }
 
+    }
+
+
+
+    private void loadProfileImage(String imageUrl) {
+        if (imageUrl != null) {
+            Glide.with(this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.defaultprofileimg) // 이미지 로딩 중에 표시할 임시 이미지
+                    .error(R.drawable.defaultprofileimg) // 이미지 로딩 실패 시 표시할 이미지
+                    .centerCrop() // 이미지가 ImageView를 꽉 채우도록 설정
+                    .into(profileImage);
+        } else {
+            profileImage.setImageResource(R.drawable.defaultprofileimg); // 저장된 이미지 URL이 없을 경우 기본 이미지 사용
         }
     }
 
@@ -230,7 +270,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-
     private void getProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);
@@ -267,10 +306,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void getUserProfile(String token) {
         Call<UserRes> call = userApi.getUserProfile("Bearer " + token);
-
         call.enqueue(new Callback<UserRes>() {
             @Override
             public void onResponse(Call<UserRes> call, Response<UserRes> response) {
@@ -298,7 +335,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     // 프로필 수정하기 클릭 리스너
     public void onProfileEditClick(View view) {
         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
@@ -310,4 +346,7 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
+
+
 }
+

@@ -1,13 +1,17 @@
 package com.yh04.joyfulmindapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +21,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.navercorp.nid.NaverIdLoginSDK;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.NaverApiService;
 import com.yh04.joyfulmindapp.api.UserApi;
@@ -26,7 +39,6 @@ import com.yh04.joyfulmindapp.model.User;
 import com.yh04.joyfulmindapp.model.UserChange;
 import com.yh04.joyfulmindapp.model.UserRes;
 import com.yh04.joyfulmindapp.config.Config;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,6 +50,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.IOException;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
+
+
 public class ProfileActivity extends AppCompatActivity {
 
     private UserApi userApi;
@@ -46,11 +65,18 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewGender;
     private TextView textViewAge;
     private ImageView imgChangeNickname;
-    private String token;  // JWT 토큰
-    private String naverAccessToken;
-
+    private String token;
+    private String naverAccessToken;// JWT 토큰
+    private Uri imageUri;
+    private String imageUrl;
     private TextView txtChangePassword;
     private TextView txtLogout;
+    private ImageView profileImage;
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +88,8 @@ public class ProfileActivity extends AppCompatActivity {
         // 액션바에 화살표 백버튼을 표시하는 코드
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         userApi = retrofit.create(UserApi.class);
 
@@ -81,6 +108,7 @@ public class ProfileActivity extends AppCompatActivity {
         imgChangeNickname = findViewById(R.id.imgChangeNickname);
         txtChangePassword = findViewById(R.id.txtChangePassword);
         txtLogout = findViewById(R.id.txtLogout);
+        profileImage = findViewById(R.id.profileImage);
 
         // 네이버 프로필 정보 가져오기
         naverAccessToken = getIntent().getStringExtra("naverAccessToken");
@@ -91,6 +119,19 @@ public class ProfileActivity extends AppCompatActivity {
             // 프로필 정보 가져오기
             getUserProfile();
         }
+
+        // 프로필 정보 가져오기
+        getUserProfile();
+
+        // Firestore에서 저장된 이미지 URL 가져오기
+        getProfileImageUrl();
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFileChooser();
+            }
+        });
 
         // 클릭 이벤트 처리
         imgChangeNickname.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +148,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
                 startActivity(intent);
+                uploadImageAndProceedToChangePassword();
             }
         });
 
@@ -120,6 +162,111 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 초기에는 닉네임 수정 불가능하게 설정
         editText.setEnabled(false);
+    }
+
+    private void openFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                profileImage.setImageBitmap(bitmap);
+                uploadImage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void uploadImage() {
+        if (imageUri != null) {
+            StorageReference fileReference = storage.getReference().child("profile_images/" + System.currentTimeMillis() + ".jpg");
+            fileReference.putFile(imageUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imageUrl = uri.toString();
+                                    saveImageUrlToSharedPreferences(imageUrl);
+                                    loadProfileImage(imageUrl);
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(ProfileActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    private void saveImageUrlToSharedPreferences(String imageUrl) {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("profileImageUrl", imageUrl);
+        editor.apply();
+    }
+
+    private void getProfileImageUrl() {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String savedImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
+        loadProfileImage(savedImageUrl);
+    }
+
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.defaultprofileimg) // 이미지 로딩 중에 표시할 임시 이미지
+                .error(R.drawable.defaultprofileimg) // 이미지 로딩 실패 시 표시할 이미지
+                .centerCrop() // 이미지가 ImageView를 꽉 채우도록 설정
+                .into(profileImage);
+    }
+
+    private void uploadImageAndProceedToChangePassword() {
+        if (imageUri != null) {
+            StorageReference fileReference = storage.getReference().child("profile_images/" + System.currentTimeMillis() + ".jpg");
+            fileReference.putFile(imageUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    imageUrl = uri.toString();
+                                    saveImageUrlToSharedPreferences(imageUrl); // SharedPreferences에 저장
+                                    proceedToChangePasswordActivity(imageUrl);
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(ProfileActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            proceedToChangePasswordActivity(DEFAULT_IMAGE); // 업로드 실패 시 기본 이미지 사용
+                        }
+                    });
+        } else {
+            proceedToChangePasswordActivity(DEFAULT_IMAGE); // 이미지가 없을 경우 기본 이미지 사용
+        }
+    }
+
+    private void proceedToChangePasswordActivity(String imageUrl) {
+        Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
+        intent.putExtra("imageUrl", imageUrl); // imageUrl 전달
+        startActivity(intent);
     }
 
     private void getUserProfile() {
@@ -154,7 +301,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
-
     private void getNaverProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);

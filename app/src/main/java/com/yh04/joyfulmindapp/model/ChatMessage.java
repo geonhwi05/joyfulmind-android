@@ -6,6 +6,7 @@ public class ChatMessage {
     private String nickname;
     private String message;
     private Timestamp timestamp;
+    private String profileImageUrl; // 프로필 이미지 URL 추가
 
     public ChatMessage() {
     }
@@ -18,6 +19,13 @@ public class ChatMessage {
         this.nickname = nickname;
         this.message = message;
         this.timestamp = timestamp;
+    }
+
+    public ChatMessage(String nickname, String message, Timestamp timestamp, String profileImageUrl) {
+        this.nickname = nickname;
+        this.message = message;
+        this.timestamp = timestamp;
+        this.profileImageUrl = profileImageUrl; // 프로필 이미지 URL 추가
     }
 
     public String getNickname() {
@@ -44,8 +52,13 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
 
-
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 
     @Override
     public String toString() {
@@ -53,6 +66,7 @@ public class ChatMessage {
                 "nickname='" + nickname + '\'' +
                 ", message='" + message + '\'' +
                 ", timestamp=" + timestamp +
+                ", profileImageUrl='" + profileImageUrl + '\'' +
                 '}';
     }
 }
