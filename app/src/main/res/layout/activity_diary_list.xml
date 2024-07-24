@@ -6,15 +6,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/txtSelectedDateRange"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:padding="16dp"
-        android:text="Select date range"
-        android:textSize="18sp" />
-
     <Button
         android:id="@+id/btnSelectDateRange"
         android:layout_width="wrap_content"
@@ -30,6 +21,14 @@
         app:mcv_selectionColor="@color/custom"
         android:visibility="gone"
         app:mcv_selectionMode="range" />
+
+    <TextView
+        android:id="@+id/txtSelectedDateRange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:textSize="18sp" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"

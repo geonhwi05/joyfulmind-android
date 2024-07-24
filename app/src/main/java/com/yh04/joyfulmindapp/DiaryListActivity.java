@@ -71,7 +71,7 @@ public class DiaryListActivity extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     String start = sdf.format(new Date(startDate.getYear() - 1900, startDate.getMonth() - 1, startDate.getDay()));
                     String end = sdf.format(new Date(endDate.getYear() - 1900, endDate.getMonth() - 1, endDate.getDay()));
-                    txtSelectedDateRange.setText(start + " to " + end);
+                    txtSelectedDateRange.setText(start + " ~ " + end);
                     fetchDiariesForDateRange(startDate, endDate);
                 }
             }
