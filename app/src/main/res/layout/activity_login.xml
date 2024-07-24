@@ -66,23 +66,16 @@
             android:id="@+id/btn_login"
             android:layout_width="400dp"
             android:layout_height="50dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="40dp"
             android:contentDescription="naverlogin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="네이버로그인액세스토큰" />
-
-        <TextView
             android:id="@+id/txtRegister"
             android:layout_width="330dp"
             android:layout_height="80dp"
-            android:layout_marginTop="50dp"
             android:background="@drawable/backgroundcolor"
             android:backgroundTint="#00FFFFFF"
             android:fontFamily="sans-serif-light"

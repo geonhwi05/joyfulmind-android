@@ -7,4 +7,5 @@
         android:icon="@drawable/logout_24dp"
         android:title="logout"
         app:showAsAction="always" />
+
 </menu>

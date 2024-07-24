@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,8 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.navercorp.nid.NaverIdLoginSDK;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
+import com.yh04.joyfulmindapp.api.NaverApiService;
 import com.yh04.joyfulmindapp.api.UserApi;
+import com.yh04.joyfulmindapp.model.NidProfileResponse;
+import com.yh04.joyfulmindapp.model.Profile;
 import com.yh04.joyfulmindapp.model.User;
 import com.yh04.joyfulmindapp.model.UserChange;
 import com.yh04.joyfulmindapp.model.UserRes;
@@ -41,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewAge;
     private ImageView imgChangeNickname;
     private String token;  // JWT 토큰
+    private String naverAccessToken;
 
     private TextView txtChangePassword;
     private TextView txtLogout;
@@ -69,8 +75,15 @@ public class ProfileActivity extends AppCompatActivity {
         txtChangePassword = findViewById(R.id.txtChangePassword);
         txtLogout = findViewById(R.id.txtLogout);
 
-        // 프로필 정보 가져오기
-        getUserProfile();
+        // 네이버 프로필 정보 가져오기
+        naverAccessToken = getIntent().getStringExtra("naverAccessToken");
+        if (naverAccessToken != null) {
+            Log.d("ProfileActivity", "Naver Access Token: " + naverAccessToken);
+            getNaverProfileInfo(naverAccessToken);
+        } else {
+            // 프로필 정보 가져오기
+            getUserProfile();
+        }
 
         // 클릭 이벤트 처리
         imgChangeNickname.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +144,53 @@ public class ProfileActivity extends AppCompatActivity {
             public void onFailure(Call<UserRes> call, Throwable t) {
                 Log.d("ProfileActivity", "Request failed: " + t.getMessage());
                 Toast.makeText(ProfileActivity.this, "프로필 정보를 가져오는 중 오류 발생: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getNaverProfileInfo(String accessToken) {
+        Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
+        NaverApiService apiService = retrofit.create(NaverApiService.class);
+
+        Call<NidProfileResponse> call = apiService.getProfile("Bearer " + accessToken);
+        call.enqueue(new Callback<NidProfileResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<NidProfileResponse> call, @NonNull Response<NidProfileResponse> response) {
+                if (response.isSuccessful()) {
+                    NidProfileResponse profileResponse = response.body();
+                    Profile profile = profileResponse.getProfile();
+
+                    String email = profile.getEmail();
+                    String name = profile.getName();
+                    String nickname = profile.getNickname();
+                    String gender = profile.getGender();
+                    String age = profile.getAge();
+                    String profileImage = profile.getProfileImage();
+
+                    Log.d("ProfileInfo", "Email: " + email);
+                    Log.d("ProfileInfo", "Name: " + name);
+                    Log.d("ProfileInfo", "Nickname: " + nickname);
+                    Log.d("ProfileInfo", "Gender: " + gender);
+                    Log.d("ProfileInfo", "Age: " + age);
+                    Log.d("ProfileInfo", "Profile Image: " + profileImage);
+
+                    // 프로필 정보를 UI에 설정
+                    editText.setText(nickname);
+                    textViewEmail.setText(email);
+                    textViewGender.setText(gender);
+                    textViewAge.setText(age);
+
+                } else {
+                    Log.e("ProfileError", "Response message: " + response.message());
+                    Log.e("ProfileError", "Response error body: " + response.errorBody().toString());
+                    Toast.makeText(ProfileActivity.this, "프로필 가져오기 실패: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<NidProfileResponse> call, @NonNull Throwable t) {
+                Log.e("ProfileError", "Error message: " + t.getMessage());
+                Toast.makeText(ProfileActivity.this, "프로필 가져오기 실패: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -246,6 +306,11 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sp.edit();
         editor.remove("token");
         editor.apply();
+
+        // 네이버 로그아웃 처리 (필요한 경우)
+        if (naverAccessToken != null) {
+            NaverIdLoginSDK.INSTANCE.logout();
+        }
 
         // 로그인 화면으로 이동
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);

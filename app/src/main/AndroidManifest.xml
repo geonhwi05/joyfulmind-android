@@ -25,9 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JoyfulMindApp"
         tools:targetApi="31">
-        <activity
-            android:name=".TestActivity"
-            android:exported="false" />
+
         <activity
             android:name=".EditDiaryActivity"
             android:exported="false" />
