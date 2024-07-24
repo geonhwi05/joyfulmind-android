@@ -50,6 +50,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+
         //뷰 객체 연결
         NidOAuthLoginButton btnNaverLogin = findViewById(R.id.btn_login);
 

@@ -3,6 +3,7 @@ package com.yh04.joyfulmindapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
@@ -43,18 +45,27 @@ public class DiaryListActivity extends AppCompatActivity {
     private DiaryAdapter adapter;
     private List<Diary> diaryList = new ArrayList<>();
     private String token;
-    private TextView txtSelectedDateRange;
-    private Button btnSelectDateRange;
+    private TextView txtDateRange;
+    private Button btnCalendar;
+    private FloatingActionButton btnAdd;
+    private View expandableLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_list);
 
-        calendarView = findViewById(R.id.cv_calendar);
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        calendarView = findViewById(R.id.cvCalendar);
         recyclerView = findViewById(R.id.recyclerView);
-        txtSelectedDateRange = findViewById(R.id.txtSelectedDateRange);
-        btnSelectDateRange = findViewById(R.id.btnSelectDateRange);
+        txtDateRange = findViewById(R.id.txtDateRange);
+        btnCalendar = findViewById(R.id.btnCalendar);
+        btnAdd = findViewById(R.id.btnAdd);
+        expandableLayout = findViewById(R.id.ExpandableLayout);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -71,14 +82,19 @@ public class DiaryListActivity extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     String start = sdf.format(new Date(startDate.getYear() - 1900, startDate.getMonth() - 1, startDate.getDay()));
                     String end = sdf.format(new Date(endDate.getYear() - 1900, endDate.getMonth() - 1, endDate.getDay()));
-                    txtSelectedDateRange.setText(start + " to " + end);
+                    txtDateRange.setText(start + " ~ " + end);
                     fetchDiariesForDateRange(startDate, endDate);
                 }
             }
         });
 
-        btnSelectDateRange.setOnClickListener(v -> {
-            calendarView.setVisibility(calendarView.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        btnCalendar.setOnClickListener(v -> {
+            expandableLayout.setVisibility(expandableLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        });
+
+        btnAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(DiaryListActivity.this, EditDiaryActivity.class);
+            startActivity(intent);
         });
 
         fetchAllDiaries();
@@ -148,4 +164,14 @@ public class DiaryListActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         return sp.getString("token", "");
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

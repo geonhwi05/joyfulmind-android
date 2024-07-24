@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(files("libs\\com.skt.Tmap_1.76.jar"))
+    implementation(files("libs\\oauth-5.2.1-sources.jar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

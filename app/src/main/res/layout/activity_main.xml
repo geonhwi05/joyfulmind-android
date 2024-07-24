@@ -135,17 +135,14 @@
 
                         <TextView
                             android:id="@+id/textView4"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:gravity="end"
+                            android:gravity="right"
                             android:text="프로필 수정하기        "
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:onClick="onProfileEditClick" />
+                            android:textColor="#FFFFFF" />
 
                         <TextView
-                            android:id="@+id/txtUserName"
+                            android:id="@+id/txtusername"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="15dp"

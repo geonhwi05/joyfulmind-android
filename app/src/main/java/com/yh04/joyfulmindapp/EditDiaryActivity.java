@@ -2,12 +2,14 @@ package com.yh04.joyfulmindapp;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
@@ -36,6 +38,11 @@ public class EditDiaryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_diary);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         txtCreatedAt = findViewById(R.id.txtCreatedAt);
         txtTitle = findViewById(R.id.txtTitle);
@@ -130,6 +137,15 @@ public class EditDiaryActivity extends AppCompatActivity {
                 Toast.makeText(EditDiaryActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private String getTokenFromSharedPreferences() {

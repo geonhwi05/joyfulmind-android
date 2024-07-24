@@ -38,14 +38,16 @@
                 android:id="@+id/imgMale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_marginLeft="50dp"
                 android:src="@drawable/male" />
 
             <ImageView
                 android:id="@+id/imgFemale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_marginLeft="50dp"
                 android:src="@drawable/female" />
         </LinearLayout>
 
