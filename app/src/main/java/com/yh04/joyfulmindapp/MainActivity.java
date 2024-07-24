@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     TextView tvBtn3;
     TextView tvBtn4;
 
+    TextView txtEditProfile;
+
     private ActivityMainBinding binding;
 
     // 액션바의 로그아웃 버튼을 활성화시킴
@@ -52,6 +54,18 @@ public class MainActivity extends AppCompatActivity {
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
         tvBtn4 = findViewById(R.id.textView3);
+        txtEditProfile = findViewById(R.id.txtEditProfile);
+
+        txtEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,ProfileActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+
 
         // 뷰페이저2 어댑터 설정
         viewPager2 = findViewById(R.id.viewPager2);
