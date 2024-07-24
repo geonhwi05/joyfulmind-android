@@ -1,8 +1,13 @@
 package com.yh04.joyfulmindapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,6 +38,11 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         userApi = retrofit.create(UserApi.class);
@@ -93,5 +103,17 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 Toast.makeText(ChangePasswordActivity.this, "비밀번호 변경 중 오류 발생: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            Intent intent = new Intent(ChangePasswordActivity.this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
