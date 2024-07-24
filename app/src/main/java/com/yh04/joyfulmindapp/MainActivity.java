@@ -1,16 +1,17 @@
 package com.yh04.joyfulmindapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -34,9 +35,19 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     // 액션바의 로그아웃 버튼을 활성화시킴
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.logout) {
+            showLogoutConfirmationDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -48,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         // 액션바 이름 변경
         getSupportActionBar().setTitle(" ");
 
-
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
@@ -58,13 +68,11 @@ public class MainActivity extends AppCompatActivity {
         txtEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,ProfileActivity.class);
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
-
-
 
         // 뷰페이저2 어댑터 설정
         viewPager2 = findViewById(R.id.viewPager2);
@@ -196,4 +204,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("로그아웃");
+        builder.setMessage("로그아웃하시겠습니까?");
+        builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                logout();
+            }
+        });
+        builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void logout() {
+        // 로그아웃 처리: SharedPreferences에서 토큰 삭제 또는 서버에 로그아웃 요청을 보냅니다.
+        // 여기서는 간단하게 로그인 화면으로 이동하는 코드로 대체합니다.
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }
