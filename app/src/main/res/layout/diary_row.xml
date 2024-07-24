@@ -15,6 +15,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/rounded_background"
+            android:backgroundTint="#83EDBE8C"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -22,29 +24,29 @@
                 android:id="@+id/txtTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:text="Title"
                 android:textColor="#000000"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/txtDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Description"
                 android:textColor="#000000"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/txtCreatedAt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:text="2024-07-23 01:22"
                 android:textColor="#888888"
-                android:textSize="12sp"
-                android:layout_gravity="end" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <ImageView
