@@ -2,8 +2,11 @@ package com.yh04.joyfulmindapp.adapter;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.yh04.joyfulmindapp.config.Config;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -31,12 +34,18 @@ public class NetworkClient {
                     .writeTimeout(1, TimeUnit.MINUTES)
                     .addInterceptor(loggingInterceptor)
                     .build();
-            // 네트워크로 데이터를 보내고 받는
+
+            // Gson 커스터마이징
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
+            // 네트워크로 데이터를 보내고 받는다
             // 레트로핏 라이브러리 관련 코드
             retrofit = new Retrofit.Builder()
                     .baseUrl(Config.DOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofit;
@@ -54,10 +63,15 @@ public class NetworkClient {
                     .writeTimeout(1, TimeUnit.MINUTES)
                     .addInterceptor(loggingInterceptor)
                     .build();
+
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             retrofit2 = new Retrofit.Builder()
                     .baseUrl(Config.CHATDOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofit2;
@@ -75,10 +89,15 @@ public class NetworkClient {
                     .writeTimeout(1, TimeUnit.MINUTES)
                     .addInterceptor(loggingInterceptor)
                     .build();
+
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             googleMapRetrofit = new Retrofit.Builder()
                     .baseUrl(Config.PLACEDOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return googleMapRetrofit;

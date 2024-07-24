@@ -45,7 +45,7 @@ public class SongRecActivity extends AppCompatActivity {
 
         spotifyService = NetworkClient.getRetrofitClient(this).create(SpotifyService.class);
 
-        getRecommendedSongs("프로미스나인", 20);
+        getRecommendedSongs("슬픔", 20);
     }
 
     private void getRecommendedSongs(String emotion, int limit) {

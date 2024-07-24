@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -63,12 +64,12 @@ public class SecondFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
 
         // 이미지뷰 클릭 리스너 설정
-        ImageView walkImageView = view.findViewById(R.id.walk);
+        ImageView walkImageView = view.findViewById(R.id.analysis);
         walkImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // PlaceActivity로 이동하는 Intent 생성
-                Intent intent = new Intent(getActivity(), PlaceActivity.class);
+                Intent intent = new Intent(getActivity(), AnalysisActivity.class);
                 startActivity(intent);
             }
         });

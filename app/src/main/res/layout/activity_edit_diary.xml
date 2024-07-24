@@ -24,13 +24,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/txtDate"
+            android:id="@+id/txtCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:fontFamily="@font/yeseva_one"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:text="june 10, 2024"
+            android:text="June 10, 2024"
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
             android:textSize="18sp"
@@ -77,24 +77,15 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <ImageView
-        android:id="@+id/imgEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="316dp"
-        android:layout_marginTop="624dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/circlepencil" />
-
-    <ImageView
         android:id="@+id/imgSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="236dp"
-        android:layout_marginTop="624dp"
-        android:visibility="invisible"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:layout_gravity="end|bottom"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/circlesave" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
