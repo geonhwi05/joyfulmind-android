@@ -7,8 +7,8 @@
     tools:context=".SecondFragment">
 
     <ImageView
-        android:id="@+id/walk"
+        android:id="@+id/analysis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/main3" />
+        android:src="@drawable/main5" />
 </FrameLayout>

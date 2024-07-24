@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvBtn1;
     TextView tvBtn2;
     TextView tvBtn3;
+    TextView tvBtn4;
 
     private ActivityMainBinding binding;
 
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
+        tvBtn4 = findViewById(R.id.textView3);
 
         // 뷰페이저2 어댑터 설정
         viewPager2 = findViewById(R.id.viewPager2);
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 왼쪽 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment1의 화면으로 이동
+        // 첫번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment1의 화면으로 이동
         tvBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 중앙 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment2의 화면으로 이동
+        // 두번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment2의 화면으로 이동
         tvBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,11 +81,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 오른쪽 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment3의 화면으로 이동
+        // 세번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment3의 화면으로 이동
         tvBtn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 viewPager2.setCurrentItem(2);
+            }
+        });
+
+        // 네번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment3의 화면으로 이동
+        tvBtn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager2.setCurrentItem(3);
             }
         });
     }
@@ -97,10 +107,11 @@ public class MainActivity extends AppCompatActivity {
             currentFragmentId = position;
         }
 
-        // 텍스트뷰 버튼 객체 연결 : tvBtn1(왼쪽버튼), tvBtn2(오른쪽버튼), tvBtn3(가운데버튼)
+        // 텍스트뷰 버튼 객체 연결 : tvBtn1, tvBtn2, tvBtn3, tvBtn4
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
+        tvBtn4 = findViewById(R.id.textView3);
 
         // 텍스트뷰 버튼 색상 정의 : 현재 페이지의 위치를 구분하기 위해 선택된 페이지의 투명도를 더 높게 설정
         String BaseHexColor = "#F6BC78";
@@ -119,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
             tvBtn3.setBackgroundColor(
                     Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
             );
+            tvBtn4.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
         }
         // 두번째 화면일 경우 가운데 버튼 활성화 표시 (배경색을 진하게 함)
         else if (currentFragmentId == 1) {
@@ -131,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
             tvBtn3.setBackgroundColor(
                     Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
             );
+            tvBtn4.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
         }
         // 세번째 화면일 경우 오른쪽 버튼 활성화 표시 (배경색을 진하게 함)
         else if (currentFragmentId == 2) {
@@ -141,6 +158,24 @@ public class MainActivity extends AppCompatActivity {
                     Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
             );
             tvBtn3.setBackgroundColor(
+                    Color.argb(selectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
+            tvBtn4.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
+        }
+        // 네번째 화면일 경우 오른쪽 버튼 활성화 표시 (배경색을 진하게 함)
+        else if (currentFragmentId == 3) {
+            tvBtn1.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
+            tvBtn2.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
+            tvBtn3.setBackgroundColor(
+                    Color.argb(deselectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
+            );
+            tvBtn4.setBackgroundColor(
                     Color.argb(selectedAlpha, Color.red(rgbColor), Color.green(rgbColor), Color.blue(rgbColor))
             );
         }

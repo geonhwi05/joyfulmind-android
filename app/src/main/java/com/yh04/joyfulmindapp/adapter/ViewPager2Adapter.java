@@ -6,13 +6,14 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.yh04.joyfulmindapp.FirstFragment;
+import com.yh04.joyfulmindapp.FourthFragment;
 import com.yh04.joyfulmindapp.MainActivity;
 import com.yh04.joyfulmindapp.SecondFragment;
 import com.yh04.joyfulmindapp.thirdFragment;
 
 public class ViewPager2Adapter extends FragmentStateAdapter {
     // 뷰페이저에 보여줄 페이지 개수 설정
-    private static final int NUM_PAGES = 3;
+    private static final int NUM_PAGES = 4;
 
     // 프래그먼트로 구성된 어댑터일 경우 RealMainActivity가 아닌 Fragment로 초기화하여야 함
     public ViewPager2Adapter(@NonNull MainActivity MainActivity) {
@@ -32,6 +33,8 @@ public class ViewPager2Adapter extends FragmentStateAdapter {
             fragment = new SecondFragment();
         else if (position==2)
             fragment = new thirdFragment();
+        else if (position==3)
+            fragment = new FourthFragment();
 
         // 위치에 따른 프래그먼트 반환
         return fragment;
