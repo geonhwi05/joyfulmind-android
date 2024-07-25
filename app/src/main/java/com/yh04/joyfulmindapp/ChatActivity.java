@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -83,12 +82,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendMessage();
-            }
-        });
+        btnSend.setOnClickListener(v -> sendMessage());
 
         fetchUserProfile(); // 사용자 프로필 정보를 가져옴
     }
@@ -117,6 +111,23 @@ public class ChatActivity extends AppCompatActivity {
                 Log.e("ChatActivity", "사용자 정보를 불러오는데 실패했습니다.", t);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // SharedPreferences에서 닉네임 불러오기
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        nickname = sp.getString("userNickname", "YourNickname");
+        profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
+        Log.d("ChatActivity", "Updated Nickname: " + nickname);
+
+        // 어댑터에 닉네임 및 프로필 이미지 URL 업데이트
+        if (chatAdapter != null) {
+            chatAdapter.setNickname(nickname);
+            chatAdapter.setProfileImageUrl(profileImageUrl);
+            chatAdapter.notifyDataSetChanged();
+        }
     }
 
     private void sendMessage() {
@@ -180,6 +191,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();

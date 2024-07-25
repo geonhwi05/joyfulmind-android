@@ -23,12 +23,22 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<ChatMessage> chatMessages;
     private String currentUser;
-    private String nickname;
+    private String profileImageUrl;
 
-    public ChatAdapter(List<ChatMessage> chatMessages, String nickname, String currentUser) {
+    public ChatAdapter(List<ChatMessage> chatMessages, String currentUser, String profileImageUrl) {
         this.chatMessages = chatMessages;
         this.currentUser = currentUser;
-        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void setNickname(String nickname) {
+        this.currentUser = nickname;
+        notifyDataSetChanged();  // 닉네임이 변경되면 어댑터에 이를 반영하도록 갱신
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+        notifyDataSetChanged();  // 프로필 이미지 URL이 변경되면 어댑터에 이를 반영하도록 갱신
     }
 
     @Override
@@ -46,7 +56,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType <= 0) {
+        if (viewType == 0) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mychat_row, parent, false);
             return new MyChatViewHolder(view);
         } else {
@@ -59,7 +69,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage chatMessage = chatMessages.get(position);
         if (holder instanceof MyChatViewHolder) {
-            ((MyChatViewHolder) holder).bind(chatMessage);
+            ((MyChatViewHolder) holder).bind(chatMessage, profileImageUrl);
         } else {
             ((JoyChatViewHolder) holder).bind(chatMessage);
         }
@@ -84,7 +94,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             profileImage = itemView.findViewById(R.id.ImageView22);
         }
 
-        public void bind(ChatMessage chatMessage) {
+        public void bind(ChatMessage chatMessage, String profileImageUrl) {
             txtMyName.setText(chatMessage.getNickname());
             txtMyTime.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(chatMessage.getTimestamp().toDate()));
 
@@ -98,7 +108,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             // 프로필 이미지 로드
-            String profileImageUrl = chatMessage.getProfileImageUrl();
             if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
                 Glide.with(profileImage.getContext())
                         .load(profileImageUrl)
@@ -140,8 +149,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             // 프로필 이미지 로드
             joyImage.setImageResource(R.drawable.defaultprofileimg);
-
         }
     }
-
 }

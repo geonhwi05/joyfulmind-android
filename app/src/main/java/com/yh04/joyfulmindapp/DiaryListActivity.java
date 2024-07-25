@@ -3,6 +3,7 @@ package com.yh04.joyfulmindapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +40,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class DiaryListActivity extends AppCompatActivity {
+    private static final String TAG = "DiaryListActivity";
 
     private MaterialCalendarView calendarView;
     private RecyclerView recyclerView;
@@ -112,12 +114,14 @@ public class DiaryListActivity extends AppCompatActivity {
                     diaryList = response.body().getItems();
                     sortAndDisplayDiaries();
                 } else {
+                    Log.e(TAG, "Failed to fetch diaries: " + response.code());
                     Toast.makeText(DiaryListActivity.this, "Failed to fetch diaries", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<DiaryResponse> call, Throwable t) {
+                Log.e(TAG, "An error occurred: " + t.getMessage(), t);
                 Toast.makeText(DiaryListActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });
@@ -139,12 +143,14 @@ public class DiaryListActivity extends AppCompatActivity {
                     diaryList = response.body().getItems();
                     sortAndDisplayDiaries();
                 } else {
+                    Log.e(TAG, "Failed to fetch diaries for date range: " + response.code());
                     Toast.makeText(DiaryListActivity.this, "Failed to fetch diaries for selected date range", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<DiaryResponse> call, Throwable t) {
+                Log.e(TAG, "An error occurred: " + t.getMessage(), t);
                 Toast.makeText(DiaryListActivity.this, "An error occurred", Toast.LENGTH_SHORT).show();
             }
         });

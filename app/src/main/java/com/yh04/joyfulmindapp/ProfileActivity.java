@@ -39,6 +39,7 @@ import com.yh04.joyfulmindapp.model.User;
 import com.yh04.joyfulmindapp.model.UserChange;
 import com.yh04.joyfulmindapp.model.UserRes;
 import com.yh04.joyfulmindapp.config.Config;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -51,11 +52,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
-import java.util.Locale;
-
-import retrofit2.Call;
-import retrofit2.Retrofit;
-
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -66,7 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewAge;
     private ImageView imgChangeNickname;
     private String token;
-    private String naverAccessToken;// JWT 토큰
+    private String naverAccessToken; // JWT 토큰
     private Uri imageUri;
     private String imageUrl;
     private TextView txtChangePassword;
@@ -197,6 +193,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     imageUrl = uri.toString();
+                                    saveImageUrlToFirestore(imageUrl);
                                     saveImageUrlToSharedPreferences(imageUrl);
                                     loadProfileImage(imageUrl);
                                 }
@@ -217,6 +214,28 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("profileImageUrl", imageUrl);
         editor.apply();
+    }
+
+    private void saveImageUrlToFirestore(String imageUrl) {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String email = sp.getString("email", null);
+
+        if (email != null) {
+            DocumentReference docRef = db.collection("users").document(email);
+            docRef.update("profileImageUrl", imageUrl)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("ProfileActivity", "프로필 이미지 URL이 Firestore에 성공적으로 저장되었습니다.");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("ProfileActivity", "프로필 이미지 URL 저장 실패: ", e);
+                        }
+                    });
+        }
     }
 
     private void getProfileImageUrl() {
@@ -245,6 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     imageUrl = uri.toString();
+                                    saveImageUrlToFirestore(imageUrl);
                                     saveImageUrlToSharedPreferences(imageUrl); // SharedPreferences에 저장
                                     proceedToChangePasswordActivity(imageUrl);
                                 }
@@ -288,6 +308,13 @@ public class ProfileActivity extends AppCompatActivity {
                     textViewEmail.setText(user.email);
                     textViewGender.setText(getGenderString(user.gender));
                     textViewAge.setText(calculateAge(user.birthDate));  // 나이 계산하여 표시
+
+                    // SharedPreferences에 이메일 저장
+                    SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("email", user.email);
+                    editor.apply();
+
                 } else {
                     Log.d("ProfileActivity", "Response failed: " + response.message());
                     Toast.makeText(ProfileActivity.this, "프로필 정보를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
@@ -301,6 +328,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+
     private void getNaverProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);
@@ -332,6 +360,12 @@ public class ProfileActivity extends AppCompatActivity {
                     textViewEmail.setText(email);
                     textViewGender.setText(gender);
                     textViewAge.setText(age);
+
+                    // SharedPreferences에 이메일 저장
+                    SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("email", email);
+                    editor.apply();
 
                 } else {
                     Log.e("ProfileError", "Response message: " + response.message());
@@ -415,6 +449,12 @@ public class ProfileActivity extends AppCompatActivity {
                     Log.d("ProfileActivity", "Nickname change successful: " + response.body().message);
                     Toast.makeText(ProfileActivity.this, "닉네임이 변경되었습니다.", Toast.LENGTH_SHORT).show();
                     editText.setEnabled(false);  // 닉네임 변경 후 수정 불가능하게 설정
+
+                    // SharedPreferences에 닉네임 저장
+                    SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("userNickname", newNickname);
+                    editor.apply();
 
                     // 닉네임 수정 후 다시 원래 클릭 리스너로 설정
                     imgChangeNickname.setOnClickListener(new View.OnClickListener() {

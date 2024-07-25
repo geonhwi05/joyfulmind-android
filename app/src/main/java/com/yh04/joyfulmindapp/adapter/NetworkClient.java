@@ -2,8 +2,11 @@ package com.yh04.joyfulmindapp.adapter;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.yh04.joyfulmindapp.config.Config;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -20,6 +23,11 @@ public class NetworkClient {
 
     public static Retrofit getRetrofitClient(Context context){
         if(retrofit == null){
+            // 커스텀 Gson 인스턴스 생성
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             // 통신 로그 확인할때 필요한 코드
             HttpLoggingInterceptor loggingInterceptor =
                     new HttpLoggingInterceptor();
@@ -37,7 +45,7 @@ public class NetworkClient {
             retrofit = new Retrofit.Builder()
                     .baseUrl(Config.DOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson)) // 커스텀 Gson 추가
                     .build();
         }
         return retrofit;
@@ -45,6 +53,11 @@ public class NetworkClient {
 
     public static Retrofit getRetrofitClient2(Context context){
         if(retrofit2 == null){
+            // 커스텀 Gson 인스턴스 생성
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             HttpLoggingInterceptor loggingInterceptor =
                     new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -58,7 +71,7 @@ public class NetworkClient {
             retrofit2 = new Retrofit.Builder()
                     .baseUrl(Config.CHATDOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson)) // 커스텀 Gson 추가
                     .build();
         }
         return retrofit2;
@@ -66,6 +79,11 @@ public class NetworkClient {
 
     public static Retrofit getGoogleMapRetrofitClient(Context context){
         if(googleMapRetrofit == null){
+            // 커스텀 Gson 인스턴스 생성
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             HttpLoggingInterceptor loggingInterceptor =
                     new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -79,7 +97,7 @@ public class NetworkClient {
             googleMapRetrofit = new Retrofit.Builder()
                     .baseUrl(Config.PLACEDOMAIN)
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson)) // 커스텀 Gson 추가
                     .build();
         }
         return googleMapRetrofit;
@@ -87,6 +105,11 @@ public class NetworkClient {
 
     public static Retrofit getNaverRetrofitClient(Context context){
         if(naverRetrofit == null){
+            // 커스텀 Gson 인스턴스 생성
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Date.class, new CustomDateAdapter())
+                    .create();
+
             HttpLoggingInterceptor loggingInterceptor =
                     new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -100,7 +123,7 @@ public class NetworkClient {
             naverRetrofit = new Retrofit.Builder()
                     .baseUrl("https://openapi.naver.com/")
                     .client(httpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson)) // 커스텀 Gson 추가
                     .build();
         }
         return naverRetrofit;

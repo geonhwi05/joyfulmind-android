@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -14,9 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.navercorp.nid.NaverIdLoginSDK;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.adapter.ViewPager2Adapter;
@@ -32,7 +36,6 @@ import com.yh04.joyfulmindapp.model.UserRes;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private String token;  // JWT 토큰
     private String naverAccessToken;
     private String nickname;
+    private FirebaseFirestore db;
 
     // 액션바의 로그아웃 버튼을 활성화시킴
     @Override
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.logout) {
-            logout();
+            showLogoutDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -91,11 +95,6 @@ public class MainActivity extends AppCompatActivity {
         tvBtn4 = findViewById(R.id.textView3);
         txtUserName = findViewById(R.id.txtUserName);
         profileImage = findViewById(R.id.profileImage);
-
-        // SharedPreferences에서 저장된 프로필 이미지 URL 가져오기
-        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        String savedImageUrl = sp.getString("profileImageUrl", null);
-        loadProfileImage(savedImageUrl);
 
         profileLayout = findViewById(R.id.profileLayout);
 
@@ -122,12 +121,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 첫번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment1의 화면으로 이동
-        tvBtn1.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-            intent.putExtra("nickname", nickname);
-            Log.d("MainActivity", "Sending Nickname: " + nickname);
-            startActivity(intent);
-        });
+        tvBtn1.setOnClickListener(v -> viewPager2.setCurrentItem(0));
 
         // 두번째 텍스트뷰 클릭 이벤트 : ViewPager2에서 Fragment2의 화면으로 이동
         tvBtn2.setOnClickListener(v -> viewPager2.setCurrentItem(1));
@@ -142,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         userApi = retrofit.create(UserApi.class);
 
+        // Firestore 초기화
+        db = FirebaseFirestore.getInstance();
+
         // Intent에서 액세스 토큰을 가져옴
         Intent intent = getIntent();
         naverAccessToken = intent.getStringExtra("naverAccessToken");
@@ -151,12 +148,9 @@ public class MainActivity extends AppCompatActivity {
             getProfileInfo(naverAccessToken);
         } else if (token != null) {
             getUserProfile(token);
-        } else {
         }
 
     }
-
-
 
     private void loadProfileImage(String imageUrl) {
         if (imageUrl != null) {
@@ -168,6 +162,41 @@ public class MainActivity extends AppCompatActivity {
                     .into(profileImage);
         } else {
             profileImage.setImageResource(R.drawable.defaultprofileimg); // 저장된 이미지 URL이 없을 경우 기본 이미지 사용
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // SharedPreferences에서 닉네임 불러오기
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String nickname = sp.getString("userNickname", "DefaultNickname");
+        txtUserName.setText(nickname + "님");
+
+        // Firestore에서 프로필 이미지 다시 가져오기
+        fetchProfileImageFromFirestore();
+    }
+
+    private void fetchProfileImageFromFirestore() {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String email = sp.getString("email", null); // SharedPreferences에서 이메일 가져오기
+
+        if (email != null) {
+            db.collection("users").document(email).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String imageUrl = documentSnapshot.getString("profileImageUrl");
+                            loadProfileImage(imageUrl);
+
+                            // SharedPreferences에 저장
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putString("profileImageUrl", imageUrl);
+                            editor.apply();
+                        } else {
+                            Log.e("ProfileError", "프로필 이미지를 불러오는데 실패했습니다.");
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("ProfileError", "프로필 이미지를 불러오는데 실패했습니다.", e));
         }
     }
 
@@ -254,6 +283,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("로그아웃하시겠습니까?")
+                .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        logout();
+                    }
+                })
+                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // 아무일도 하지 않음
+                    }
+                });
+        builder.create().show();
+    }
+
     private void logout() {
         // 네이버 로그인 SDK 로그아웃
         NaverIdLoginSDK.INSTANCE.logout();
@@ -270,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
     private void getProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);
@@ -289,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("userNickname", nickname);
+                    editor.putString("email", profile.getEmail()); // 이메일 저장
                     editor.apply();
 
                     txtUserName.setText(nickname + "님");
@@ -306,8 +353,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void getUserProfile(String token) {
         Call<UserRes> call = userApi.getUserProfile("Bearer " + token);
+
         call.enqueue(new Callback<UserRes>() {
             @Override
             public void onResponse(Call<UserRes> call, Response<UserRes> response) {
@@ -319,6 +368,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("userNickname", nickname);
+                    editor.putString("email", user.email); // 이메일 저장
                     editor.apply();
 
                     txtUserName.setText(nickname + "님");
@@ -335,6 +385,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     // 프로필 수정하기 클릭 리스너
     public void onProfileEditClick(View view) {
         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
@@ -346,7 +397,4 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(intent);
     }
-
-
 }
-
