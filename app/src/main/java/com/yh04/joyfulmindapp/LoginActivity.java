@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,10 +22,8 @@ import com.navercorp.nid.NaverIdLoginSDK;
 import com.navercorp.nid.oauth.OAuthLoginCallback;
 import com.navercorp.nid.oauth.view.NidOAuthLoginButton;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
-import com.yh04.joyfulmindapp.api.NaverTokenService;
 import com.yh04.joyfulmindapp.api.UserApi;
 import com.yh04.joyfulmindapp.config.Config;
-import com.yh04.joyfulmindapp.model.NaverTokenResponse;
 import com.yh04.joyfulmindapp.model.User;
 import com.yh04.joyfulmindapp.model.UserRes;
 
@@ -114,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             // 이메일 형식 체크
-            Pattern pattern = Patterns.EMAIL_ADDRESS;
+            Pattern pattern = android.util.Patterns.EMAIL_ADDRESS;
             if (!pattern.matcher(email).matches()) {
                 Snackbar.make(ImgLogin,
                         "이메일 형식을 바르게 작성하세요.",

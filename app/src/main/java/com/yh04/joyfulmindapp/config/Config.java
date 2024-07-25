@@ -5,6 +5,8 @@ public class Config {
 
     public static final String DOMAIN = "https://o0ci4innfc.execute-api.ap-northeast-2.amazonaws.com/dev/";
 
+    public static final String EMOTIONDOMAIN= "https://53k2k16li5.execute-api.ap-northeast-2.amazonaws.com";
+
     public static final String CHATDOMAIN = "https://8ruxmsx29k.execute-api.us-east-1.amazonaws.com/";
     public static final String SP_NAME = "JoyfulMindApp";
 

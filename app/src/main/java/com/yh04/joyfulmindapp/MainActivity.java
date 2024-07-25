@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (token != null) {
             getUserProfile(token);
         }
-
     }
 
     private void loadProfileImage(String imageUrl) {
@@ -172,13 +171,11 @@ public class MainActivity extends AppCompatActivity {
         txtUserName.setText(nickname + "님");
 
         // Firestore에서 프로필 이미지 다시 가져오기
-        fetchProfileImageFromFirestore();
+        String email = sp.getString("email", null);
+        fetchProfileImageFromFirestore(email);
     }
 
-    private void fetchProfileImageFromFirestore() {
-        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        String email = sp.getString("email", null); // SharedPreferences에서 이메일 가져오기
-
+    private void fetchProfileImageFromFirestore(String email) {
         if (email != null) {
             db.collection("users").document(email).get()
                     .addOnSuccessListener(documentSnapshot -> {
@@ -187,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                             loadProfileImage(imageUrl);
 
                             // SharedPreferences에 저장
+                            SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putString("profileImageUrl", imageUrl);
                             editor.apply();

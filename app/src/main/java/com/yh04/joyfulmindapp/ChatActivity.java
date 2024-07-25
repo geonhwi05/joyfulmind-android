@@ -45,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private String nickname;
     private String token;
+    private String naverAccessToken;
     private String profileImageUrl;
 
     private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
@@ -62,9 +63,14 @@ public class ChatActivity extends AppCompatActivity {
         // SharedPreferences에서 토큰과 프로필 이미지 URL 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         token = sp.getString("token", null);
+        naverAccessToken = sp.getString("naverAccessToken", null);
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
 
-        if (token == null) {
+        Log.d("ChatActivity", "Token: " + token);
+        Log.d("ChatActivity", "Naver Access Token: " + naverAccessToken);
+        Log.d("ChatActivity", "Profile Image URL: " + profileImageUrl);
+
+        if (token == null && naverAccessToken == null) {
             // 토큰이 없는 경우 로그인 화면으로 이동
             Intent intent = new Intent(ChatActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -88,39 +94,26 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void fetchUserProfile() {
-        Retrofit retrofit = NetworkClient.getRetrofitClient(ChatActivity.this);
-        UserApi userApi = retrofit.create(UserApi.class);
-        Call<UserRes> call = userApi.getUserProfile("Bearer " + token);
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        nickname = sp.getString("userNickname", "YourNickname");
+        profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
 
-        call.enqueue(new Callback<UserRes>() {
-            @Override
-            public void onResponse(Call<UserRes> call, Response<UserRes> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    UserRes userRes = response.body();
-                    nickname = userRes.getUser().nickname;
+        Log.d("ChatActivity", "Fetched Nickname: " + nickname);
+        Log.d("ChatActivity", "Fetched Profile Image URL: " + profileImageUrl);
 
-                    chatAdapter = new ChatAdapter(chatMessages, nickname, profileImageUrl);
-                    recyclerView.setAdapter(chatAdapter);
-                } else {
-                    Log.e("ChatActivity", "사용자 정보를 불러오는데 실패했습니다.");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserRes> call, Throwable t) {
-                Log.e("ChatActivity", "사용자 정보를 불러오는데 실패했습니다.", t);
-            }
-        });
+        chatAdapter = new ChatAdapter(chatMessages, nickname, profileImageUrl);
+        recyclerView.setAdapter(chatAdapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // SharedPreferences에서 닉네임 불러오기
+        // SharedPreferences에서 닉네임과 프로필 이미지 URL 불러오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         nickname = sp.getString("userNickname", "YourNickname");
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
         Log.d("ChatActivity", "Updated Nickname: " + nickname);
+        Log.d("ChatActivity", "Updated Profile Image URL: " + profileImageUrl);
 
         // 어댑터에 닉네임 및 프로필 이미지 URL 업데이트
         if (chatAdapter != null) {
@@ -139,7 +132,9 @@ public class ChatActivity extends AppCompatActivity {
         String message = editChat.getText().toString();
         if (!TextUtils.isEmpty(message)) {
             ChatMessage chatMessage = new ChatMessage(nickname, message, Timestamp.now(), profileImageUrl);
-            db.collection("UserChatting").add(chatMessage);
+            db.collection("UserChatting").add(chatMessage)
+                    .addOnSuccessListener(documentReference -> Log.d("ChatActivity", "Message sent successfully"))
+                    .addOnFailureListener(e -> Log.e("ChatActivity", "Error sending message", e));
             editChat.setText("");
 
             // 화면에 사용자 메시지 추가

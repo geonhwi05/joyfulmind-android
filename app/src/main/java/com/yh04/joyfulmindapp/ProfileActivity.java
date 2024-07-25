@@ -44,6 +44,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -52,6 +53,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -91,10 +93,13 @@ public class ProfileActivity extends AppCompatActivity {
 
         // JWT 토큰 초기화 (예: 로그인 후 Intent를 통해 전달받은 토큰)
         token = getIntent().getStringExtra("token");
-        if (token == null) {
+        naverAccessToken = getIntent().getStringExtra("naverAccessToken");
+
+        if (token == null && naverAccessToken == null) {
             // SharedPreferences에서 토큰 가져오기
             SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
             token = sp.getString("token", null);
+            naverAccessToken = sp.getString("naverAccessToken", null);
         }
 
         editText = findViewById(R.id.txtTitle);
@@ -106,18 +111,16 @@ public class ProfileActivity extends AppCompatActivity {
         txtLogout = findViewById(R.id.txtLogout);
         profileImage = findViewById(R.id.profileImage);
 
-        // 네이버 프로필 정보 가져오기
-        naverAccessToken = getIntent().getStringExtra("naverAccessToken");
         if (naverAccessToken != null) {
             Log.d("ProfileActivity", "Naver Access Token: " + naverAccessToken);
             getNaverProfileInfo(naverAccessToken);
-        } else {
+        } else if (token != null) {
             // 프로필 정보 가져오기
             getUserProfile();
+        } else {
+            Toast.makeText(this, "로그인 정보가 없습니다. 다시 로그인해주세요.", Toast.LENGTH_SHORT).show();
+            finish();
         }
-
-        // 프로필 정보 가져오기
-        getUserProfile();
 
         // Firestore에서 저장된 이미지 URL 가져오기
         getProfileImageUrl();
@@ -222,22 +225,23 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (email != null) {
             DocumentReference docRef = db.collection("users").document(email);
-            docRef.update("profileImageUrl", imageUrl)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("ProfileActivity", "프로필 이미지 URL이 Firestore에 성공적으로 저장되었습니다.");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("ProfileActivity", "프로필 이미지 URL 저장 실패: ", e);
-                        }
-                    });
+            docRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    // 문서가 존재하면 업데이트
+                    docRef.update("profileImageUrl", imageUrl)
+                            .addOnSuccessListener(aVoid -> Log.d("ProfileActivity", "프로필 이미지 URL이 Firestore에 성공적으로 저장되었습니다."))
+                            .addOnFailureListener(e -> Log.e("ProfileActivity", "프로필 이미지 URL 저장 실패: ", e));
+                } else {
+                    // 문서가 존재하지 않으면 생성
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("profileImageUrl", imageUrl);
+                    docRef.set(userData)
+                            .addOnSuccessListener(aVoid -> Log.d("ProfileActivity", "프로필 이미지 URL이 Firestore에 성공적으로 저장되었습니다."))
+                            .addOnFailureListener(e -> Log.e("ProfileActivity", "프로필 이미지 URL 저장 실패: ", e));
+                }
+            }).addOnFailureListener(e -> Log.e("ProfileActivity", "프로필 문서를 불러오는데 실패했습니다.", e));
         }
     }
-
     private void getProfileImageUrl() {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         String savedImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
@@ -309,11 +313,15 @@ public class ProfileActivity extends AppCompatActivity {
                     textViewGender.setText(getGenderString(user.gender));
                     textViewAge.setText(calculateAge(user.birthDate));  // 나이 계산하여 표시
 
-                    // SharedPreferences에 이메일 저장
+                    // SharedPreferences에 자체 회원 이메일 저장
                     SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("email", user.email);
+                    editor.putString("profileImageUrl", DEFAULT_IMAGE); // 기본 이미지로 초기화
                     editor.apply();
+
+                    // 프로필 이미지 로드
+                    loadProfileImage(DEFAULT_IMAGE);
 
                 } else {
                     Log.d("ProfileActivity", "Response failed: " + response.message());
@@ -328,7 +336,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
-
     private void getNaverProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);
@@ -361,11 +368,15 @@ public class ProfileActivity extends AppCompatActivity {
                     textViewGender.setText(gender);
                     textViewAge.setText(age);
 
-                    // SharedPreferences에 이메일 저장
+                    // SharedPreferences에 이메일과 네이버 프로필 이미지 저장
                     SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("email", email);
+                    editor.putString("profileImageUrl", profileImage);
                     editor.apply();
+
+                    // 프로필 이미지 로드
+                    loadProfileImage(profileImage);
 
                 } else {
                     Log.e("ProfileError", "Response message: " + response.message());
@@ -498,6 +509,7 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.remove("token");
+        editor.remove("naverAccessToken"); // 네이버 토큰도 삭제
         editor.apply();
 
         // 네이버 로그아웃 처리 (필요한 경우)
