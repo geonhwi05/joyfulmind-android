@@ -148,7 +148,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             // 프로필 이미지 로드
-            joyImage.setImageResource(R.drawable.defaultprofileimg);
+            joyImage.setImageResource(R.drawable.app_icon);
         }
     }
 }
