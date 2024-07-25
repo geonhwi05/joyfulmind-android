@@ -13,4 +13,9 @@
         <item name="android:background">@drawable/button_background</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
+    <!-- DatePicker 스타일 -->
+    <style name="CustomDatePickerStyle" parent="android:Widget.Material.DatePicker">
+        <item name="android:headerBackground">@color/light_pink</item>
+        <item name="android:datePickerMode">calendar</item>
+    </style>
 </resources>

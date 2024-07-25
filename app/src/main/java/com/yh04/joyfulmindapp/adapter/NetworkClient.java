@@ -20,6 +20,7 @@ public class NetworkClient {
     private static Retrofit retrofit2;
     private static Retrofit googleMapRetrofit;
     private static Retrofit naverRetrofit;
+    private static Retrofit emotionRetrofit;
 
     public static Retrofit getRetrofitClient(Context context){
         if(retrofit == null){
@@ -127,5 +128,21 @@ public class NetworkClient {
                     .build();
         }
         return naverRetrofit;
+    }
+    public static Retrofit getRetrofitInstance() {
+        if (emotionRetrofit == null) {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+
+            emotionRetrofit = new Retrofit.Builder()
+                    .baseUrl(Config.EMOTIONDOMAIN)
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return emotionRetrofit;
     }
 }

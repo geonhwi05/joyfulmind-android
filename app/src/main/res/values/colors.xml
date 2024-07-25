@@ -19,5 +19,6 @@
     <color name="hint_text">#888888</color>
     <color name="button_color">#5A00B1</color>
     <color name="button_text_color">#F8E8C0</color>
+    <color name="light_pink">#FFCDD2</color> <!-- 연한 분홍색 -->
 
 </resources>
