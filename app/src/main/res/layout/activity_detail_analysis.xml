@@ -21,7 +21,7 @@
         app:srcCompat="@drawable/sentiment_analysis_report" /> <!-- 접근성 설명 추가 -->
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/song"
         android:layout_width="match_parent"
         android:layout_height="135dp"
         android:layout_marginLeft="20dp"
@@ -62,7 +62,7 @@
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+        app:layout_constraintTop_toBottomOf="@+id/song">
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
