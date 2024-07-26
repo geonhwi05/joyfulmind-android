@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
 import com.yh04.joyfulmindapp.adapter.DiaryAdapter;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
@@ -28,6 +29,7 @@ import com.yh04.joyfulmindapp.model.DiaryResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -51,6 +53,11 @@ public class DiaryListActivity extends AppCompatActivity {
     private Button btnCalendar;
     private FloatingActionButton btnAdd;
     private View expandableLayout;
+
+    private static final int REQUEST_CODE_ADD_DIARY = 1;
+    private CalendarDay selectedStartDate;
+    private CalendarDay selectedEndDate;
+    private CalendarDay previousSelectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,14 +86,36 @@ public class DiaryListActivity extends AppCompatActivity {
             @Override
             public void onRangeSelected(@NonNull MaterialCalendarView widget, @NonNull List<CalendarDay> dates) {
                 if (!dates.isEmpty()) {
-                    CalendarDay startDate = dates.get(0);
-                    CalendarDay endDate = dates.get(dates.size() - 1);
+                    selectedStartDate = dates.get(0);
+                    selectedEndDate = dates.get(dates.size() - 1);
+
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    String start = sdf.format(new Date(startDate.getYear() - 1900, startDate.getMonth() - 1, startDate.getDay()));
-                    String end = sdf.format(new Date(endDate.getYear() - 1900, endDate.getMonth() - 1, endDate.getDay()));
+                    String start = sdf.format(new Date(selectedStartDate.getYear() - 1900, selectedStartDate.getMonth() - 1, selectedStartDate.getDay()));
+                    String end = sdf.format(new Date(selectedEndDate.getYear() - 1900, selectedEndDate.getMonth() - 1, selectedEndDate.getDay()));
+
                     txtDateRange.setText(start + " ~ " + end);
-                    fetchDiariesForDateRange(startDate, endDate);
+                    fetchDiariesForDateRange(selectedStartDate, selectedEndDate);
+
+                    // 날짜 범위 선택 후 캘린더 접기
+                    expandableLayout.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                if (previousSelectedDate != null && previousSelectedDate.equals(date)) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    String selectedDate = sdf.format(new Date(date.getYear() - 1900, date.getMonth() - 1, date.getDay()));
+
+                    txtDateRange.setText(selectedDate);
+                    fetchDiariesForDateRange(date, date);
+
+                    // 같은 날짜를 두 번 선택하면 캘린더 접기
+                    expandableLayout.setVisibility(View.GONE);
+                }
+                previousSelectedDate = date;
             }
         });
 
@@ -96,10 +125,29 @@ public class DiaryListActivity extends AppCompatActivity {
 
         btnAdd.setOnClickListener(v -> {
             Intent intent = new Intent(DiaryListActivity.this, EditDiaryActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE_ADD_DIARY);
         });
 
-        fetchAllDiaries();
+        // 처음에 오늘 날짜의 일기를 가져옵니다.
+        fetchDiariesForToday();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_ADD_DIARY && resultCode == RESULT_OK) {
+            // 일기 작성 후에는 오늘 날짜의 일기를 가져옵니다.
+            fetchDiariesForToday();
+        }
+    }
+
+    private void fetchDiariesForToday() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH는 0부터 시작하므로 1을 더합니다.
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        CalendarDay todayDate = CalendarDay.from(year, month, day);
+        fetchDiariesForDateRange(todayDate, todayDate);
     }
 
     private void fetchAllDiaries() {
@@ -129,8 +177,17 @@ public class DiaryListActivity extends AppCompatActivity {
 
     private void fetchDiariesForDateRange(CalendarDay startDate, CalendarDay endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        String start = sdf.format(new Date(startDate.getYear() - 1900, startDate.getMonth() - 1, startDate.getDay()));
-        String end = sdf.format(new Date(endDate.getYear() - 1900, endDate.getMonth() - 1, endDate.getDay()));
+
+        // 시작 날짜와 끝 날짜가 지정된 경우 해당 날짜를 사용
+        Calendar startCal = Calendar.getInstance();
+        startCal.set(startDate.getYear(), startDate.getMonth() - 1, startDate.getDay());
+        String start = sdf.format(startCal.getTime());
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.set(endDate.getYear(), endDate.getMonth() - 1, endDate.getDay());
+        // 날짜 범위의 끝을 포함하려면 하루를 더해야 합니다
+        endCal.add(Calendar.DAY_OF_MONTH, 1);
+        String end = sdf.format(endCal.getTime());
 
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         DiaryApi diaryApi = retrofit.create(DiaryApi.class);
@@ -164,6 +221,7 @@ public class DiaryListActivity extends AppCompatActivity {
             }
         });
         adapter.setDiaryList(diaryList);
+        adapter.notifyDataSetChanged();
     }
 
     private String getTokenFromSharedPreferences() {
@@ -179,5 +237,4 @@ public class DiaryListActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -102,6 +103,7 @@ public class EditDiaryActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(EditDiaryActivity.this, "새 일기가 생성되었습니다.", Toast.LENGTH_SHORT).show();
+                    setResult(Activity.RESULT_OK);
                     finish();
                 } else {
                     Toast.makeText(EditDiaryActivity.this, "일기 생성을 실패하였습니다", Toast.LENGTH_SHORT).show();
@@ -126,6 +128,7 @@ public class EditDiaryActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(EditDiaryActivity.this, "일기가 수정되었습니다.", Toast.LENGTH_SHORT).show();
+                    setResult(Activity.RESULT_OK);
                     finish();
                 } else {
                     Toast.makeText(EditDiaryActivity.this, "수정을 실패하였습니다", Toast.LENGTH_SHORT).show();
