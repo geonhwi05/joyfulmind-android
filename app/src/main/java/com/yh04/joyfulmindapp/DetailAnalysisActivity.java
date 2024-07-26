@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,7 +36,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.graphics.Color;
-import android.view.MenuItem;
 
 public class DetailAnalysisActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -45,15 +43,18 @@ public class DetailAnalysisActivity extends AppCompatActivity {
     private HorizontalBarChart barChart;
     private Map<String, Integer> emotionCountMap = new HashMap<>(); // 감정 카운트를 위한 맵
 
+    // 색상 변수 설정
+    private final int colorFear = Color.parseColor("#ff9999"); // Light pastel red
+    private final int colorDisgust = Color.parseColor("#ffba85"); // Lighter pastel yellow
+    private final int colorSurprise = Color.parseColor("#8fd9b6"); // Light pastel green
+    private final int colorSadness = Color.parseColor("#d395d0"); // Light pastel purple
+    private final int colorAnger = Color.parseColor("#ffcccb"); // Light pastel pink
+    private final int colorHappiness = Color.parseColor("#c0d6e4"); // Light pastel blue
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_analysis);
-
-        // 액션바 이름 변경
-        getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
         pieChart = findViewById(R.id.pieChart);
@@ -128,6 +129,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
 
         List<PieEntry> pieEntries = new ArrayList<>();
         List<BarEntry> barEntries = new ArrayList<>();
+        List<Integer> colors = new ArrayList<>();
         String[] emotions = {"fear", "disgust", "surprise", "sadness", "angry", "happiness"};
 
         // 감정 수치를 퍼센트로 변환 (neutral 제외하고 나머지 감정들로 100% 비율 맞추기)
@@ -148,14 +150,20 @@ public class DetailAnalysisActivity extends AppCompatActivity {
                 .filter(entry -> entry.getValue() > 0) // 0% 제외
                 .sorted(Map.Entry.<String, Float>comparingByValue().reversed())
                 .limit(3)
-                .forEach(entry -> pieEntries.add(new PieEntry(entry.getValue(), entry.getKey())));
+                .forEach(entry -> {
+                    pieEntries.add(new PieEntry(entry.getValue(), entry.getKey()));
+                    colors.add(getColorForEmotion(entry.getKey()));
+                });
 
         // 감정이 1개 또는 2개인 경우에도 해당 감정만 표시
         if (pieEntries.isEmpty()) {
             emotionPercentageMap.entrySet().stream()
                     .filter(entry -> entry.getValue() > 0) // 0% 제외
                     .sorted(Map.Entry.<String, Float>comparingByValue().reversed())
-                    .forEach(entry -> pieEntries.add(new PieEntry(entry.getValue(), entry.getKey())));
+                    .forEach(entry -> {
+                        pieEntries.add(new PieEntry(entry.getValue(), entry.getKey()));
+                        colors.add(getColorForEmotion(entry.getKey()));
+                    });
         }
 
         // 모든 감정을 바 차트에 추가
@@ -166,7 +174,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
 
         // Pie Chart
         PieDataSet pieDataSet = new PieDataSet(pieEntries, "");
-        pieDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        pieDataSet.setColors(colors);
         pieDataSet.setValueTextColor(Color.BLACK);
         pieDataSet.setValueTextSize(15f); // 글자 크기 키우기
         pieDataSet.setValueFormatter(new PercentFormatter()); // 퍼센트 표시
@@ -180,7 +188,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
 
         // Bar Chart
         BarDataSet barDataSet = new BarDataSet(barEntries, "");
-        barDataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        barDataSet.setColors(getBarChartColors());
         barDataSet.setValueTextColor(Color.BLACK);
         barDataSet.setValueTextSize(16f); // 글자 크기 키우기
         BarData barData = new BarData(barDataSet);
@@ -198,20 +206,34 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         barChart.invalidate(); // 차트 강제 업데이트
     }
 
+    private int getColorForEmotion(String emotion) {
+        switch (emotion) {
+            case "fear":
+                return colorFear;
+            case "disgust":
+                return colorDisgust;
+            case "surprise":
+                return colorSurprise;
+            case "sadness":
+                return colorSadness;
+            case "angry":
+                return colorAnger;
+            case "happiness":
+                return colorHappiness;
+            default:
+                return Color.GRAY; // Default color if emotion not found
+        }
+    }
+
+    private int[] getBarChartColors() {
+        return new int[]{colorFear, colorDisgust, colorSurprise, colorSadness, colorAnger, colorHappiness};
+    }
+
     // 퍼센트 포맷터 클래스
     public static class PercentFormatter extends ValueFormatter {
         @Override
         public String getFormattedValue(float value) {
             return String.format("%.1f%%", value);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
