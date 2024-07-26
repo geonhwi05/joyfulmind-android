@@ -21,6 +21,7 @@
         app:srcCompat="@drawable/sentiment_analysis_report" /> <!-- 접근성 설명 추가 -->
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="135dp"
         android:layout_marginLeft="20dp"
@@ -53,39 +54,31 @@
             app:srcCompat="@drawable/iconmusic" />
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/scrollView3"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-        <LinearLayout
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="315dp"
+            android:layout_height="258dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"
+            android:contentDescription="@string/pieChart_description" /> <!-- 접근성 설명 추가 -->
+
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/barChart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="290dp"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="600dp"
+            android:layout_marginTop="20dp"
+            android:contentDescription="@string/barChart_description" /> <!-- 접근성 설명 추가 -->
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieChart"
-                android:layout_width="315dp"
-                android:layout_height="258dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="5dp"
-                android:contentDescription="@string/pieChart_description" /> <!-- 접근성 설명 추가 -->
-
-            <com.github.mikephil.charting.charts.HorizontalBarChart
-                android:id="@+id/barChart"
-                android:layout_width="match_parent"
-                android:layout_height="600dp"
-                android:layout_marginTop="20dp"
-                android:contentDescription="@string/barChart_description" /> <!-- 접근성 설명 추가 -->
-
-        </LinearLayout>
-
-    </ScrollView>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
