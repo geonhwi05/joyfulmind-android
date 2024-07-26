@@ -55,6 +55,7 @@ public class DiaryListActivity extends AppCompatActivity {
     private View expandableLayout;
 
     private static final int REQUEST_CODE_ADD_DIARY = 1;
+    private static final int REQUEST_CODE_EDIT_DIARY = 2; // 일기 수정에 대한 요청 코드 추가
     private CalendarDay selectedStartDate;
     private CalendarDay selectedEndDate;
     private CalendarDay previousSelectedDate;
@@ -133,11 +134,20 @@ public class DiaryListActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        fetchAllDiaries(); // onResume에서 전체 일기 리스트를 다시 가져옵니다.
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_ADD_DIARY && resultCode == RESULT_OK) {
             // 일기 작성 후에는 오늘 날짜의 일기를 가져옵니다.
             fetchDiariesForToday();
+        } else if (requestCode == REQUEST_CODE_EDIT_DIARY && resultCode == RESULT_OK) {
+            // 일기 수정 후에는 전체 일기 리스트를 가져옵니다.
+            fetchAllDiaries();
         }
     }
 

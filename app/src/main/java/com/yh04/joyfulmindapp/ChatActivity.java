@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -16,18 +15,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.yh04.joyfulmindapp.adapter.ChatAdapter;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.ChatApi;
-import com.yh04.joyfulmindapp.api.UserApi;
 import com.yh04.joyfulmindapp.config.Config;
 import com.yh04.joyfulmindapp.model.ChatMessage;
 import com.yh04.joyfulmindapp.model.ChatResponse;
-import com.yh04.joyfulmindapp.model.UserRes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -47,6 +47,7 @@ public class ChatActivity extends AppCompatActivity {
     private String token;
     private String naverAccessToken;
     private String profileImageUrl;
+    private String email;
 
     private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
@@ -60,15 +61,17 @@ public class ChatActivity extends AppCompatActivity {
         // 액션바에 화살표 백버튼을 표시하는 코드
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // SharedPreferences에서 토큰과 프로필 이미지 URL 가져오기
+        // SharedPreferences에서 토큰과 이메일 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         token = sp.getString("token", null);
         naverAccessToken = sp.getString("naverAccessToken", null);
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
+        email = sp.getString("email", null);  // 이메일 가져오기
 
         Log.d("ChatActivity", "Token: " + token);
         Log.d("ChatActivity", "Naver Access Token: " + naverAccessToken);
         Log.d("ChatActivity", "Profile Image URL: " + profileImageUrl);
+        Log.d("ChatActivity", "Email: " + email);  // 이메일 로그 출력
 
         if (token == null && naverAccessToken == null) {
             // 토큰이 없는 경우 로그인 화면으로 이동
@@ -103,6 +106,47 @@ public class ChatActivity extends AppCompatActivity {
 
         chatAdapter = new ChatAdapter(chatMessages, nickname, profileImageUrl);
         recyclerView.setAdapter(chatAdapter);
+
+        loadChatMessages();
+    }
+
+    private void loadChatMessages() {
+        List<ChatMessage> allMessages = new ArrayList<>();
+
+        db.collection("UserChattingTest")
+                .whereEqualTo("email", email)
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            ChatMessage chatMessage = document.toObject(ChatMessage.class);
+                            allMessages.add(chatMessage);
+                        }
+                        db.collection("JoyChattingTest")
+                                .whereEqualTo("email", email)
+                                .orderBy("timestamp", Query.Direction.ASCENDING)
+                                .get()
+                                .addOnCompleteListener(task2 -> {
+                                    if (task2.isSuccessful()) {
+                                        for (DocumentSnapshot document : task2.getResult()) {
+                                            ChatMessage chatMessage = document.toObject(ChatMessage.class);
+                                            allMessages.add(chatMessage);
+                                        }
+                                        // 시간 순서대로 정렬
+                                        Collections.sort(allMessages, (m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()));
+                                        chatMessages.clear();
+                                        chatMessages.addAll(allMessages);
+                                        chatAdapter.notifyDataSetChanged();
+                                        recyclerView.scrollToPosition(chatMessages.size() - 1);
+                                    } else {
+                                        Log.e("ChatActivity", "Error fetching JoyChattingTest messages", task2.getException());
+                                    }
+                                });
+                    } else {
+                        Log.e("ChatActivity", "Error fetching UserChattingTest messages", task.getException());
+                    }
+                });
     }
 
     @Override
@@ -131,8 +175,8 @@ public class ChatActivity extends AppCompatActivity {
 
         String message = editChat.getText().toString();
         if (!TextUtils.isEmpty(message)) {
-            ChatMessage chatMessage = new ChatMessage(nickname, message, Timestamp.now(), profileImageUrl);
-            db.collection("UserChatting").add(chatMessage)
+            ChatMessage chatMessage = new ChatMessage(nickname, message, email, Timestamp.now(), profileImageUrl);
+            db.collection("UserChattingTest").add(chatMessage)
                     .addOnSuccessListener(documentReference -> Log.d("ChatActivity", "Message sent successfully"))
                     .addOnFailureListener(e -> Log.e("ChatActivity", "Error sending message", e));
             editChat.setText("");
@@ -161,10 +205,10 @@ public class ChatActivity extends AppCompatActivity {
                     Log.d("ChatApi", "응답: " + chatResponse.toString());
 
                     // ChatResponse를 ChatMessage로 변환하여 닉네임을 "조이"로 설정
-                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), Timestamp.now(), profileImageUrl);
+                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), email, Timestamp.now(), profileImageUrl);
 
-                    // 응답 메시지를 JoyChatting 컬렉션에 추가
-                    db.collection("JoyChatting").add(responseMessage);
+                    // 응답 메시지를 JoyChattingTest 컬렉션에 추가
+                    db.collection("JoyChattingTest").add(responseMessage);
 
                     // 화면에 조이의 메시지 추가
                     chatMessages.add(responseMessage);

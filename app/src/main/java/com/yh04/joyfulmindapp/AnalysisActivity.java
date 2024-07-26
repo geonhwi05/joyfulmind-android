@@ -1,12 +1,13 @@
 package com.yh04.joyfulmindapp;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -16,12 +17,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.yh04.joyfulmindapp.config.Config;
 
 import java.util.Calendar;
 
 public class AnalysisActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
+    private String email;  // 이메일 필드 추가
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,10 @@ public class AnalysisActivity extends AppCompatActivity {
         setContentView(R.layout.activity_analysis);
 
         db = FirebaseFirestore.getInstance();
+
+        // SharedPreferences에서 이메일 가져오기
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        email = sp.getString("email", null);
 
         DatePicker datePicker = findViewById(R.id.datePicker);
         ImageView imgDetail = findViewById(R.id.imgDetail);
@@ -47,14 +54,14 @@ public class AnalysisActivity extends AppCompatActivity {
                 imgDetail.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        fetchChatData(selectedDate, "비둘기"); // 닉네임을 여기에 추가
+                        fetchChatData(selectedDate, email); // 이메일을 여기에 추가
                     }
                 });
             }
         });
     }
 
-    private void fetchChatData(String selectedDate, String nickname) {
+    private void fetchChatData(String selectedDate, String email) {
         // 선택된 날짜의 시작과 끝을 설정
         Calendar selectedCalendar = Calendar.getInstance();
         String[] dateParts = selectedDate.split("-");
@@ -72,8 +79,8 @@ public class AnalysisActivity extends AppCompatActivity {
         endOfDay.set(Calendar.MINUTE, 59);
         endOfDay.set(Calendar.SECOND, 59);
 
-        db.collection("UserChatting")
-                .whereEqualTo("nickname", nickname)
+        db.collection("UserChattingTest")
+                .whereEqualTo("email", email)  // 닉네임 대신 이메일로 변경
                 .whereGreaterThanOrEqualTo("timestamp", startOfDay.getTime())
                 .whereLessThanOrEqualTo("timestamp", endOfDay.getTime())
                 .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -99,7 +106,7 @@ public class AnalysisActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onFailure(Exception e) {
+                    public void onFailure(@NonNull Exception e) {
                         // 실패 시 처리
                         Snackbar.make(findViewById(R.id.main), "데이터를 가져오는 중 오류가 발생했습니다.", Snackbar.LENGTH_LONG).show();
                     }
