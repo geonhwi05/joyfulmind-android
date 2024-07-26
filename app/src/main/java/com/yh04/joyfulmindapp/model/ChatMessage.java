@@ -5,8 +5,9 @@ import com.google.firebase.Timestamp;
 public class ChatMessage {
     private String nickname;
     private String message;
+    private String email;
     private Timestamp timestamp;
-    private String profileImageUrl; // 프로필 이미지 URL 추가
+    private String profileImageUrl;
 
     public ChatMessage() {
     }
@@ -21,11 +22,12 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
-    public ChatMessage(String nickname, String message, Timestamp timestamp, String profileImageUrl) {
+    public ChatMessage(String nickname, String message, String email, Timestamp timestamp, String profileImageUrl) {
         this.nickname = nickname;
         this.message = message;
+        this.email = email;
         this.timestamp = timestamp;
-        this.profileImageUrl = profileImageUrl; // 프로필 이미지 URL 추가
+        this.profileImageUrl = profileImageUrl;
     }
 
     public String getNickname() {
@@ -42,6 +44,14 @@ public class ChatMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Timestamp getTimestamp() {
@@ -65,6 +75,7 @@ public class ChatMessage {
         return "ChatMessage{" +
                 "nickname='" + nickname + '\'' +
                 ", message='" + message + '\'' +
+                ", email='" + email + '\'' +
                 ", timestamp=" + timestamp +
                 ", profileImageUrl='" + profileImageUrl + '\'' +
                 '}';

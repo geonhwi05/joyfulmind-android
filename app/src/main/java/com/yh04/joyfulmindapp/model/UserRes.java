@@ -4,8 +4,8 @@ public class UserRes {
 
     public String result;
     public String accessToken;
-    public String message;  // message 필드 추가
-    public User user;  // user 필드 추가
+    public String message;
+    public User user;
 
     // 기본 생성자
     public UserRes() {}
@@ -55,5 +55,15 @@ public class UserRes {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    // 이메일 반환 메서드
+    public String getEmail() {
+        return user != null ? user.email : null;
+    }
+
+    // 닉네임 반환 메서드 (필요한 경우)
+    public String getNickname() {
+        return user != null ? user.nickname : null;
     }
 }
