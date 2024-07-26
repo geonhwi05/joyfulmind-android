@@ -3,39 +3,48 @@ package com.yh04.joyfulmindapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.widget.DatePicker;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnRangeSelectedListener;
+import com.yh04.joyfulmindapp.config.Config;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.yh04.joyfulmindapp.config.Config;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class AnalysisActivity extends AppCompatActivity {
 
+    private static final String TAG = "AnalysisActivity";
     private FirebaseFirestore db;
-    private String email;  // 이메일 필드 추가
+    private String email;
+    private MaterialCalendarView calendarView;
+    private TextView txtDateRange;
+    private FloatingActionButton btnAdd;
+    private View btnCalendar, expandableLayout;
+    private CalendarDay selectedStartDate;
+    private CalendarDay selectedEndDate;
+    private String chatData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysis);
-
-        // 액션바 이름 변경
-        getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
 
@@ -43,88 +52,102 @@ public class AnalysisActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         email = sp.getString("email", null);
 
-        DatePicker datePicker = findViewById(R.id.datePicker);
-        ImageView imgDetail = findViewById(R.id.imgDetail);
+        calendarView = findViewById(R.id.cvCalendar);
+        txtDateRange = findViewById(R.id.txtDateRange);
+        btnCalendar = findViewById(R.id.btnCalendar);
+        btnAdd = findViewById(R.id.btnAdd);
+        expandableLayout = findViewById(R.id.ExpandableLayout);
 
-        // 현재 날짜로 설정
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
+        calendarView.setOnRangeSelectedListener(new OnRangeSelectedListener() {
             @Override
-            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                // 날짜가 변경될 때 호출됩니다.
-                String selectedDate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+            public void onRangeSelected(@NonNull MaterialCalendarView widget, @NonNull List<CalendarDay> dates) {
+                if (!dates.isEmpty()) {
+                    selectedStartDate = dates.get(0);
+                    selectedEndDate = dates.get(dates.size() - 1);
 
-                imgDetail.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        fetchChatData(selectedDate, email); // 이메일을 여기에 추가
-                    }
-                });
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    String start = sdf.format(new Date(selectedStartDate.getYear() - 1900, selectedStartDate.getMonth() - 1, selectedStartDate.getDay()));
+                    String end = sdf.format(new Date(selectedEndDate.getYear() - 1900, selectedEndDate.getMonth() - 1, selectedEndDate.getDay()));
+
+                    txtDateRange.setText(start + " ~ " + end);
+                    fetchChatData(start, end, email);
+                }
+            }
+        });
+
+        calendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String selectedDate = sdf.format(new Date(date.getYear() - 1900, date.getMonth() - 1, date.getDay()));
+
+                txtDateRange.setText(selectedDate);
+                fetchChatData(selectedDate, selectedDate, email);
+            }
+        });
+
+        btnCalendar.setOnClickListener(v -> {
+            expandableLayout.setVisibility(expandableLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        });
+
+        btnAdd.setOnClickListener(v -> {
+            if (chatData != null && !chatData.isEmpty()) {
+                Intent intent = new Intent(AnalysisActivity.this, DetailAnalysisActivity.class);
+                intent.putExtra("chatData", chatData);
+                startActivity(intent);
+            } else {
+                Snackbar.make(findViewById(R.id.main), "먼저 날짜를 선택하여 데이터를 가져오세요.", Snackbar.LENGTH_LONG).show();
             }
         });
     }
 
-    private void fetchChatData(String selectedDate, String email) {
-        // 선택된 날짜의 시작과 끝을 설정
-        Calendar selectedCalendar = Calendar.getInstance();
-        String[] dateParts = selectedDate.split("-");
-        selectedCalendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
-        selectedCalendar.set(Calendar.MONTH, Integer.parseInt(dateParts[1]) - 1);
-        selectedCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateParts[2]));
+    private void fetchChatData(String startDate, String endDate, String email) {
+        Calendar startCalendar = Calendar.getInstance();
+        String[] startDateParts = startDate.split("-");
+        startCalendar.set(Calendar.YEAR, Integer.parseInt(startDateParts[0]));
+        startCalendar.set(Calendar.MONTH, Integer.parseInt(startDateParts[1]) - 1);
+        startCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(startDateParts[2]));
+        startCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        startCalendar.set(Calendar.MINUTE, 0);
+        startCalendar.set(Calendar.SECOND, 0);
 
-        Calendar startOfDay = (Calendar) selectedCalendar.clone();
-        startOfDay.set(Calendar.HOUR_OF_DAY, 0);
-        startOfDay.set(Calendar.MINUTE, 0);
-        startOfDay.set(Calendar.SECOND, 0);
-
-        Calendar endOfDay = (Calendar) selectedCalendar.clone();
-        endOfDay.set(Calendar.HOUR_OF_DAY, 23);
-        endOfDay.set(Calendar.MINUTE, 59);
-        endOfDay.set(Calendar.SECOND, 59);
+        Calendar endCalendar = Calendar.getInstance();
+        String[] endDateParts = endDate.split("-");
+        endCalendar.set(Calendar.YEAR, Integer.parseInt(endDateParts[0]));
+        endCalendar.set(Calendar.MONTH, Integer.parseInt(endDateParts[1]) - 1);
+        endCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(endDateParts[2]));
+        endCalendar.set(Calendar.HOUR_OF_DAY, 23);
+        endCalendar.set(Calendar.MINUTE, 59);
+        endCalendar.set(Calendar.SECOND, 59);
 
         db.collection("UserChattingTest")
-                .whereEqualTo("email", email)  // 닉네임 대신 이메일로 변경
-                .whereGreaterThanOrEqualTo("timestamp", startOfDay.getTime())
-                .whereLessThanOrEqualTo("timestamp", endOfDay.getTime())
+                .whereEqualTo("email", email)
+                .whereGreaterThanOrEqualTo("timestamp", startCalendar.getTime())
+                .whereLessThanOrEqualTo("timestamp", endCalendar.getTime())
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                .addOnSuccessListener(new com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots.isEmpty()) {
-                            // 데이터가 없는 경우 스낵바를 사용하여 안내 팝업을 표시합니다.
-                            Snackbar.make(findViewById(R.id.main), "해당 날짜의 채팅 기록이 필요합니다.", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(findViewById(R.id.main), "해당 범위의 채팅 기록이 필요합니다.", Snackbar.LENGTH_LONG).show();
+                            chatData = null;
                         } else {
-                            StringBuilder chatData = new StringBuilder();
+                            StringBuilder chatDataBuilder = new StringBuilder();
                             for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                                 String message = document.getString("message");
-                                chatData.append(message).append("\n");
+                                chatDataBuilder.append(message).append("\n");
                             }
-
-                            Intent intent = new Intent(AnalysisActivity.this, DetailAnalysisActivity.class);
-                            intent.putExtra("chatData", chatData.toString());
-                            startActivity(intent);
+                            chatData = chatDataBuilder.toString();
                         }
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
+                .addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // 실패 시 처리
                         Snackbar.make(findViewById(R.id.main), "데이터를 가져오는 중 오류가 발생했습니다.", Snackbar.LENGTH_LONG).show();
+                        chatData = null;
                     }
                 });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
