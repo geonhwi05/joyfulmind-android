@@ -64,20 +64,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/song">
 
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/pieChart"
-            android:layout_width="315dp"
-            android:layout_height="258dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp"
-            android:contentDescription="@string/pieChart_description" /> <!-- 접근성 설명 추가 -->
-
-        <com.github.mikephil.charting.charts.HorizontalBarChart
-            android:id="@+id/barChart"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="600dp"
-            android:layout_marginTop="20dp"
-            android:contentDescription="@string/barChart_description" /> <!-- 접근성 설명 추가 -->
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieChart"
+                    android:layout_width="315dp"
+                    android:layout_height="258dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp"
+                    android:contentDescription="@string/pieChart_description" />
+
+                <com.github.mikephil.charting.charts.HorizontalBarChart
+                    android:id="@+id/barChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="600dp"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@string/barChart_description" />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 접근성 설명 추가 -->
+
+        <!-- 접근성 설명 추가 -->
 
     </LinearLayout>
 
