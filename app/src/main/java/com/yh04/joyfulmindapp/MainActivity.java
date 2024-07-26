@@ -87,6 +87,19 @@ public class MainActivity extends AppCompatActivity {
         // 액션바 이름 변경
         getSupportActionBar().setTitle(" ");
 
+        // SharedPreferences에서 토큰과 네이버 액세스 토큰 가져오기
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        token = sp.getString("token", null);
+        naverAccessToken = sp.getString("naverAccessToken", null);
+
+        if (naverAccessToken == null && token == null) {
+            // 토큰이 없는 경우 로그인 화면으로 이동
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         tvBtn1 = findViewById(R.id.textView0);
         tvBtn2 = findViewById(R.id.textView1);
         tvBtn3 = findViewById(R.id.textView2);
@@ -136,11 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Firestore 초기화
         db = FirebaseFirestore.getInstance();
-
-        // Intent에서 액세스 토큰을 가져옴
-        Intent intent = getIntent();
-        naverAccessToken = intent.getStringExtra("naverAccessToken");
-        token = intent.getStringExtra("token");
 
         if (naverAccessToken != null) {
             getProfileInfo(naverAccessToken);
