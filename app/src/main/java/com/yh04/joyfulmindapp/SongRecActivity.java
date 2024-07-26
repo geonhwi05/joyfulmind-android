@@ -1,6 +1,5 @@
 package com.yh04.joyfulmindapp;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,14 +9,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
-import com.yh04.joyfulmindapp.R;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.SpotifyService;
 import com.yh04.joyfulmindapp.model.Song;
@@ -45,7 +39,12 @@ public class SongRecActivity extends AppCompatActivity {
 
         spotifyService = NetworkClient.getRetrofitClient(this).create(SpotifyService.class);
 
-        getRecommendedSongs("슬픔", 20);
+        // Intent에서 감정 분석 결과를 받습니다.
+        Intent intent = getIntent();
+        String emotion = intent.getStringExtra("emotion");
+
+        // 감정 분석 결과에 따라 노래를 추천합니다.
+        getRecommendedSongs(emotion, 20);
     }
 
     private void getRecommendedSongs(String emotion, int limit) {
