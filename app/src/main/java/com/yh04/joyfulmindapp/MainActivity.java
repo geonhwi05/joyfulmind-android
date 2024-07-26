@@ -304,20 +304,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        // 네이버 로그인 SDK 로그아웃
-        NaverIdLoginSDK.INSTANCE.logout();
+        try {
+            // NaverIdLoginSDK 초기화 확인
+            if (!NaverIdLoginSDK.INSTANCE.isInitialized()) {
+                NaverIdLoginSDK.INSTANCE.initialize(this, getString(R.string.naver_client_id),
+                        getString(R.string.naver_client_secret), getString(R.string.app_name));
+            }
 
-        // SharedPreferences에서 토큰 삭제
-        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.remove("naverAccessToken");
-        editor.remove("token");
-        editor.apply();
+            // 네이버 로그인 SDK 로그아웃
+            NaverIdLoginSDK.INSTANCE.logout();
 
-        // 로그인 화면으로 이동
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+            // SharedPreferences에서 토큰 삭제
+            SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.remove("naverAccessToken");
+            editor.remove("token");
+            editor.apply();
+
+            // 로그인 화면으로 이동
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error logging out", e);
+        }
     }
 
     private void getProfileInfo(String accessToken) {
