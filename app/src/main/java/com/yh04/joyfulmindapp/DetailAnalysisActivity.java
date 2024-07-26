@@ -1,5 +1,6 @@
 package com.yh04.joyfulmindapp;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +37,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.graphics.Color;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 public class DetailAnalysisActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -59,6 +63,20 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         pieChart = findViewById(R.id.pieChart);
         barChart = findViewById(R.id.barChart);
+        LinearLayout song = findViewById(R.id.song);
+
+
+        // imgSong 클릭 리스너 설정
+        song.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // SongRecActivity로 이동
+                Intent intent = new Intent(DetailAnalysisActivity.this, SongRecActivity.class);
+                // 감정 분석 결과를 SongRecActivity로 전달
+                intent.putExtra("emotion", "슬픔");  // 예시로 "슬픔" 감정을 전달
+                startActivity(intent);
+            }
+        });
 
         String chatData = getIntent().getStringExtra("chatData");
 
