@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="20dp"
-    android:layout_marginTop="5dp"
+    android:layout_marginLeft="15dp"
     android:orientation="horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/JoyImage"
         android:layout_width="45dp"
         android:layout_height="45dp"
+        android:layout_marginTop="7dp"
         android:src="@drawable/app_icon"
         app:civ_border_color="#FFFFFF"
         app:civ_border_width="2dp"
@@ -21,26 +21,32 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginLeft="8dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/txtJoyName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             android:text="조이"
             android:textColor="@color/black" />
 
-        <TextView
-            android:id="@+id/txtJoyMessage"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="10"
-            android:text="메시지 내용"
-            android:textColor="@color/black"
-            android:visibility="gone" />
+            android:background="@drawable/chatting"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtJoyMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="10"
+                android:text="메시지 내용"
+                android:textColor="@color/black" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/imgMessageJoy"
