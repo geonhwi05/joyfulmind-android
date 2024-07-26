@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,8 +12,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.UserApi;
 import com.yh04.joyfulmindapp.model.UserChange;
@@ -39,6 +39,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private CircleImageView profileImage;
 
     private String token;  // JWT 토큰
+    private FirebaseFirestore db;
     private FirebaseStorage storage;
     private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
@@ -55,6 +56,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         Retrofit retrofit = NetworkClient.getRetrofitClient(this);
         userApi = retrofit.create(UserApi.class);
         storage = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // SharedPreferences에서 토큰 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
@@ -67,9 +69,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         profileImage = findViewById(R.id.profileImage);
 
-        // SharedPreferences에서 저장된 프로필 이미지 URL 가져오기
-        String savedImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
-        loadProfileImage(savedImageUrl);
+        // Firestore에서 저장된 프로필 이미지 URL 가져오기
+        getProfileImageUrl();
 
         imgSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +78,31 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 changePassword();
             }
         });
+    }
+
+    private void getProfileImageUrl() {
+        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+        String email = sp.getString("email", null);
+
+        if (email != null) {
+            DocumentReference docRef = db.collection("users").document(email);
+            docRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    String savedImageUrl = documentSnapshot.getString("profileImageUrl");
+                    if (savedImageUrl != null) {
+                        loadProfileImage(savedImageUrl);
+                    } else {
+                        loadProfileImage(DEFAULT_IMAGE);
+                    }
+                } else {
+                    loadProfileImage(DEFAULT_IMAGE);
+                }
+            }).addOnFailureListener(e -> {
+                loadProfileImage(DEFAULT_IMAGE);
+            });
+        } else {
+            loadProfileImage(DEFAULT_IMAGE);
+        }
     }
 
     private void loadProfileImage(String imageUrl) {

@@ -187,36 +187,39 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void uploadImage() {
         if (imageUri != null) {
-            StorageReference fileReference = storage.getReference().child("profile_images/" + System.currentTimeMillis() + ".jpg");
-            fileReference.putFile(imageUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    imageUrl = uri.toString();
-                                    saveImageUrlToFirestore(imageUrl);
-                                    saveImageUrlToSharedPreferences(imageUrl);
-                                    loadProfileImage(imageUrl);
-                                }
-                            });
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ProfileActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
+            SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
+            String email = sp.getString("email", null);
 
-    private void saveImageUrlToSharedPreferences(String imageUrl) {
-        SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("profileImageUrl", imageUrl);
-        editor.apply();
+            if (email != null) {
+                // 이메일의 특수 문자를 '_'로 변환하여 사용
+                String sanitizedEmail = email.replaceAll("[^a-zA-Z0-9]", "_");
+                String fileName = System.currentTimeMillis() + ".jpg";
+                StorageReference fileReference = storage.getReference().child("profile_images/" + sanitizedEmail + "/" + fileName);
+
+                fileReference.putFile(imageUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                fileReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        imageUrl = uri.toString();
+                                        saveImageUrlToFirestore(imageUrl);
+                                        loadProfileImage(imageUrl);
+                                    }
+                                });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(ProfileActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            } else {
+                Toast.makeText(this, "이메일 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void saveImageUrlToFirestore(String imageUrl) {
@@ -242,10 +245,30 @@ public class ProfileActivity extends AppCompatActivity {
             }).addOnFailureListener(e -> Log.e("ProfileActivity", "프로필 문서를 불러오는데 실패했습니다.", e));
         }
     }
+
     private void getProfileImageUrl() {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
-        String savedImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
-        loadProfileImage(savedImageUrl);
+        String email = sp.getString("email", null);
+
+        if (email != null) {
+            DocumentReference docRef = db.collection("users").document(email);
+            docRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    String savedImageUrl = documentSnapshot.getString("profileImageUrl");
+                    if (savedImageUrl != null) {
+                        loadProfileImage(savedImageUrl);
+                    } else {
+                        loadProfileImage(DEFAULT_IMAGE);
+                    }
+                } else {
+                    loadProfileImage(DEFAULT_IMAGE);
+                }
+            }).addOnFailureListener(e -> {
+                loadProfileImage(DEFAULT_IMAGE);
+            });
+        } else {
+            loadProfileImage(DEFAULT_IMAGE);
+        }
     }
 
     private void loadProfileImage(String imageUrl) {
@@ -269,7 +292,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     imageUrl = uri.toString();
                                     saveImageUrlToFirestore(imageUrl);
-                                    saveImageUrlToSharedPreferences(imageUrl); // SharedPreferences에 저장
                                     proceedToChangePasswordActivity(imageUrl);
                                 }
                             });
@@ -321,7 +343,7 @@ public class ProfileActivity extends AppCompatActivity {
                     editor.apply();
 
                     // 프로필 이미지 로드
-                    loadProfileImage(DEFAULT_IMAGE);
+                    getProfileImageUrl();
 
                 } else {
                     Log.d("ProfileActivity", "Response failed: " + response.message());
@@ -336,6 +358,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+
     private void getNaverProfileInfo(String accessToken) {
         Retrofit retrofit = NetworkClient.getNaverRetrofitClient(this);
         NaverApiService apiService = retrofit.create(NaverApiService.class);
@@ -376,7 +399,7 @@ public class ProfileActivity extends AppCompatActivity {
                     editor.apply();
 
                     // 프로필 이미지 로드
-                    loadProfileImage(profileImage);
+                    getProfileImageUrl();
 
                 } else {
                     Log.e("ProfileError", "Response message: " + response.message());
