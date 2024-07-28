@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +36,7 @@ public class SongRecActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_rec);
 
+
         textViewResults = findViewById(R.id.textViewResults);
         songContainer = findViewById(R.id.songContainer);
 
@@ -42,6 +45,11 @@ public class SongRecActivity extends AppCompatActivity {
         // Intent에서 감정 분석 결과를 받습니다.
         Intent intent = getIntent();
         String emotion = intent.getStringExtra("emotion");
+
+        // 감정이 null인 경우 기본값 설정
+        if (emotion == null) {
+            emotion = "기쁨";  // 기본값을 기쁨으로 설정
+        }
 
         // 감정 분석 결과에 따라 노래를 추천합니다.
         getRecommendedSongs(emotion, 20);
@@ -63,19 +71,28 @@ public class SongRecActivity extends AppCompatActivity {
                 songContainer.removeAllViews();
 
                 for (Song song : songs) {
-                    View songView = LayoutInflater.from(SongRecActivity.this).inflate(R.layout.song_item, songContainer, false);
+                    String previewUrl = song.getPreview_url();
+                    if (previewUrl != null && !previewUrl.isEmpty()) {
+                        View songView = LayoutInflater.from(SongRecActivity.this).inflate(R.layout.song_item, songContainer, false);
 
-                    TextView songName = songView.findViewById(R.id.songName);
-                    TextView songArtist = songView.findViewById(R.id.songArtist);
-                    ImageView songThumbnail = songView.findViewById(R.id.songThumbnail);
+                        TextView songName = songView.findViewById(R.id.songName);
+                        TextView songArtist = songView.findViewById(R.id.songArtist);
+                        ImageView songThumbnail = songView.findViewById(R.id.songThumbnail);
 
-                    songName.setText(song.getName());
-                    songArtist.setText(song.getArtist());
-                    Glide.with(SongRecActivity.this).load(song.getThumbnail()).into(songThumbnail);
+                        songName.setText(song.getName());
+                        songArtist.setText(song.getArtists());
 
-                    songView.setOnClickListener(v -> openSongUrl(song.getUrl()));
+                        String thumbnailUrl = song.getAlbum_cover_url();
+                        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+                            Glide.with(SongRecActivity.this).load(thumbnailUrl).into(songThumbnail);
+                        } else {
+                            Glide.with(SongRecActivity.this).load(R.drawable.defaultprofileimg).into(songThumbnail); // 기본 이미지 설정
+                        }
 
-                    songContainer.addView(songView);
+                        songView.setOnClickListener(v -> openSongUrl(previewUrl));
+
+                        songContainer.addView(songView);
+                    }
                 }
             }
 
@@ -87,7 +104,11 @@ public class SongRecActivity extends AppCompatActivity {
     }
 
     private void openSongUrl(String url) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(browserIntent);
+        if (url != null && !url.isEmpty()) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
+        } else {
+            Toast.makeText(this, "Preview URL is not available", Toast.LENGTH_SHORT).show();
+        }
     }
 }

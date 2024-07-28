@@ -2,11 +2,11 @@ package com.yh04.joyfulmindapp.model;
 
 public class Song {
     private String name;
-    private String artist;
-    private String url;
-    private String thumbnail;
+    private String artists;
+    private String preview_url;
+    private String album_cover_url;
 
-    // Getters and setters...
+    // Getters and setters
     public String getName() {
         return name;
     }
@@ -15,27 +15,28 @@ public class Song {
         this.name = name;
     }
 
-    public String getArtist() {
-        return artist;
+    public String getArtists() {
+        return artists;
     }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
+    public void setArtists(String artists) {
+        this.artists = artists;
     }
 
-    public String getUrl() {
-        return url;
+    public String getPreview_url() {
+        return preview_url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPreview_url(String preview_url) {
+        this.preview_url = preview_url;
     }
 
-    public String getThumbnail() {
-        return thumbnail;
+    public String getAlbum_cover_url() {
+        return album_cover_url;
     }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setAlbum_cover_url(String album_cover_url) {
+        this.album_cover_url = album_cover_url;
     }
 }
+

@@ -1,6 +1,8 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +21,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.yh04.joyfulmindapp.adapter.NetworkClient;
 import com.yh04.joyfulmindapp.api.SentimentAnalysisService;
@@ -40,12 +41,14 @@ import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 public class DetailAnalysisActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private PieChart pieChart;
     private HorizontalBarChart barChart;
     private Map<String, Integer> emotionCountMap = new HashMap<>(); // 감정 카운트를 위한 맵
+    private Map<String, String> emotionMapping = new HashMap<>(); // 감정 매핑
 
     // 색상 변수 설정
     private final int colorFear = Color.parseColor("#ff9999"); // Light pastel red
@@ -65,30 +68,60 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         barChart = findViewById(R.id.barChart);
         LinearLayout song = findViewById(R.id.song);
 
+        // 감정 매핑 테이블 초기화
+        initializeEmotionMapping();
 
         // imgSong 클릭 리스너 설정
         song.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // SongRecActivity로 이동
-                Intent intent = new Intent(DetailAnalysisActivity.this, SongRecActivity.class);
-                // 감정 분석 결과를 SongRecActivity로 전달
-                intent.putExtra("emotion", "슬픔");  // 예시로 "슬픔" 감정을 전달
-                startActivity(intent);
+                // 가장 높은 감정을 찾기
+                String highestEmotion = getHighestEmotion();
+                String mappedEmotion = emotionMapping.get(highestEmotion);
+
+                if (mappedEmotion != null) {
+                    Log.i("DetailAnalysisActivity", "Mapped Emotion: " + mappedEmotion);
+                    // SongRecActivity로 이동
+                    Intent intent = new Intent(DetailAnalysisActivity.this, SongRecActivity.class);
+                    // 감정 분석 결과를 SongRecActivity로 전달
+                    intent.putExtra("emotion", mappedEmotion);
+                    startActivity(intent);
+                } else {
+                    Log.e("DetailAnalysisActivity", "No valid emotion found. Highest Emotion: " + highestEmotion);
+                }
             }
         });
 
         String chatData = getIntent().getStringExtra("chatData");
 
         if (chatData != null) {
+            showProgress();
             analyzeSentiments(chatData.split("\n"));
         }
+    }
+
+    private void initializeEmotionMapping() {
+        emotionMapping.put("fear", "공포");
+        emotionMapping.put("disgust", "극혐");
+        emotionMapping.put("surprise", "놀람");
+        emotionMapping.put("sadness", "슬픔");
+        emotionMapping.put("angry", "분노");
+        emotionMapping.put("happiness", "기쁨");
+    }
+
+    private String getHighestEmotion() {
+        return emotionCountMap.entrySet().stream()
+                .filter(entry -> !entry.getKey().equals("neutral"))
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null); // 기본값으로 null
     }
 
     private void analyzeSentiments(String[] messages) {
         for (String message : messages) {
             analyzeSentiment(message);
         }
+        dismissProgress();
     }
 
     private void analyzeSentiment(String text) {
@@ -252,6 +285,22 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         @Override
         public String getFormattedValue(float value) {
             return String.format("%.1f%%", value);
+        }
+    }
+
+    // 서버에 데이터를 저장하거나, 수정하거나, 삭제하는 경우에 사용한다!
+    Dialog dialog;
+    void showProgress(){
+        dialog = new Dialog(this);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(new ProgressBar(this));
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+    void dismissProgress(){
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
         }
     }
 }

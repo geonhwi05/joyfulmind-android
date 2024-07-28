@@ -13,6 +13,8 @@
     <color name="buttonBackground">#EFCCCC</color>
     <color name="custom">#FADAB7</color>
     <color name="custom2">#FAEAD2</color>
+    <color name="gray">#808080</color>
+
 
     <color name="background_color">#F8E8C0</color>
     <color name="primary_text">#000000</color>
