@@ -96,7 +96,7 @@ public class AnalysisActivity extends AppCompatActivity {
                 intent.putExtra("chatData", chatData);
                 startActivity(intent);
             } else {
-                Snackbar.make(findViewById(R.id.main), "먼저 날짜를 선택하여 데이터를 가져오세요.", Snackbar.LENGTH_LONG).show();
+                showSnackbar("데이터가 존재하지 않습니다.");
             }
         });
     }
@@ -130,7 +130,6 @@ public class AnalysisActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots.isEmpty()) {
-                            Snackbar.make(findViewById(R.id.main), "해당 범위의 채팅 기록이 필요합니다.", Snackbar.LENGTH_LONG).show();
                             chatData = null;
                         } else {
                             StringBuilder chatDataBuilder = new StringBuilder();
@@ -145,9 +144,22 @@ public class AnalysisActivity extends AppCompatActivity {
                 .addOnFailureListener(new com.google.android.gms.tasks.OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(findViewById(R.id.main), "데이터를 가져오는 중 오류가 발생했습니다.", Snackbar.LENGTH_LONG).show();
+                        showSnackbar("데이터를 가져오는 중 오류가 발생했습니다.");
                         chatData = null;
                     }
                 });
+    }
+
+    private void showSnackbar(String message) {
+        try {
+            View view = getWindow().getDecorView().findViewById(android.R.id.content);
+            if (view != null) {
+                Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+            } else {
+                Log.e(TAG, "No suitable parent found from the given view. Please provide a valid view.");
+            }
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Snackbar 오류: " + e.getMessage());
+        }
     }
 }

@@ -1,6 +1,8 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 public class DetailAnalysisActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -64,7 +67,6 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         pieChart = findViewById(R.id.pieChart);
         barChart = findViewById(R.id.barChart);
         LinearLayout song = findViewById(R.id.song);
-
 
         // imgSong 클릭 리스너 설정
         song.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +94,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
     }
 
     private void analyzeSentiment(String text) {
+        showProgress();
         if (text == null || text.isEmpty()) {
             Log.e("DetailAnalysisActivity", "Text is null or empty");
             return;
@@ -132,7 +135,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
             public void onFailure(Call<SentimentResponse> call, Throwable t) {
                 Log.e("DetailAnalysisActivity", "API call failed: " + t.getMessage(), t);
             }
-        });
+        });dismissProgress();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -253,5 +256,19 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         public String getFormattedValue(float value) {
             return String.format("%.1f%%", value);
         }
+    }
+
+    // 서버에 데이터를 저장하거나, 수정하거나, 삭제하는 경우에 사용한다!
+    Dialog dialog;
+    void showProgress(){
+        dialog = new Dialog(this);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(new ProgressBar(this));
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+    void dismissProgress(){
+        dialog.dismiss();
     }
 }
