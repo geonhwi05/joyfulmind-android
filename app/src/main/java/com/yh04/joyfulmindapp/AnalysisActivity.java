@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,17 +36,21 @@ public class AnalysisActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String email;
     private MaterialCalendarView calendarView;
-    private TextView txtDateRange;
-    private FloatingActionButton btnAdd;
-    private View btnCalendar, expandableLayout;
     private CalendarDay selectedStartDate;
     private CalendarDay selectedEndDate;
     private String chatData;
+    private ImageView imgDetail;
+    private TextView txtDateRange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysis);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
 
@@ -53,10 +59,8 @@ public class AnalysisActivity extends AppCompatActivity {
         email = sp.getString("email", null);
 
         calendarView = findViewById(R.id.cvCalendar);
+        imgDetail = findViewById(R.id.imgDetail);
         txtDateRange = findViewById(R.id.txtDateRange);
-        btnCalendar = findViewById(R.id.btnCalendar);
-        btnAdd = findViewById(R.id.btnAdd);
-        expandableLayout = findViewById(R.id.ExpandableLayout);
 
         calendarView.setOnRangeSelectedListener(new OnRangeSelectedListener() {
             @Override
@@ -86,19 +90,17 @@ public class AnalysisActivity extends AppCompatActivity {
             }
         });
 
-        btnCalendar.setOnClickListener(v -> {
-            expandableLayout.setVisibility(expandableLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-        });
-
-        btnAdd.setOnClickListener(v -> {
+        imgDetail.setOnClickListener(v -> {
             if (chatData != null && !chatData.isEmpty()) {
                 Intent intent = new Intent(AnalysisActivity.this, DetailAnalysisActivity.class);
                 intent.putExtra("chatData", chatData);
                 startActivity(intent);
             } else {
-                showSnackbar("데이터가 존재하지 않습니다.");
+                Snackbar.make(findViewById(R.id.main), "먼저 날짜를 선택하여 데이터를 가져오세요.", Snackbar.LENGTH_LONG).show();
             }
         });
+
+
     }
 
     private void fetchChatData(String startDate, String endDate, String email) {
@@ -161,5 +163,14 @@ public class AnalysisActivity extends AppCompatActivity {
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Snackbar 오류: " + e.getMessage());
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

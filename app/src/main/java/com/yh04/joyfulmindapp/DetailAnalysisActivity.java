@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,6 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.graphics.Color;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -62,6 +64,11 @@ public class DetailAnalysisActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_analysis);
+
+        // 액션바 이름 변경
+        getSupportActionBar().setTitle(" ");
+        // 액션바에 화살표 백버튼을 표시하는 코드
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
         pieChart = findViewById(R.id.pieChart);
@@ -256,6 +263,15 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         public String getFormattedValue(float value) {
             return String.format("%.1f%%", value);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     // 서버에 데이터를 저장하거나, 수정하거나, 삭제하는 경우에 사용한다!
