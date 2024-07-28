@@ -19,14 +19,14 @@
                 android:id="@+id/imageView13"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="65dp"
                 android:layout_marginBottom="10dp"
                 app:srcCompat="@drawable/joyfulmind2" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginBottom="5dp"
                 android:orientation="horizontal">
 
@@ -87,7 +87,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="35dp"
                 android:background="#FFFFFF"
                 android:orientation="vertical">
 
@@ -95,7 +95,7 @@
                     android:id="@+id/viewPager2"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_marginBottom="30dp" />
 
             </LinearLayout>
 
@@ -116,7 +116,7 @@
                     <LinearLayout
                         android:layout_width="70dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="35dp"
+                        android:layout_marginLeft="25dp"
                         android:orientation="vertical">
 
                         <de.hdodenhof.circleimageview.CircleImageView
