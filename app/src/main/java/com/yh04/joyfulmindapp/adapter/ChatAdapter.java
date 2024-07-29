@@ -21,6 +21,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final int VIEW_TYPE_MY_MESSAGE = 0;
+    private static final int VIEW_TYPE_JOY_MESSAGE = 1;
+    private static final int VIEW_TYPE_DATE = 2;
+
     private List<ChatMessage> chatMessages;
     private String currentUser;
     private String profileImageUrl;
@@ -43,25 +47,43 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        ChatMessage message = chatMessages.get(position);
-        if (message.getNickname() != null && message.getNickname().equals(currentUser)) {
-            return 0; // 사용자의 메시지
-        } else if (message.getNickname() != null && message.getNickname().equals("조이")) {
-            return 1; // 조이의 메시지
+        if (position == 0 || isDifferentDay(position)) {
+            return VIEW_TYPE_DATE;
         } else {
-            return -1; // 기본 값 또는 오류 처리
+            ChatMessage message = chatMessages.get(position);
+            if (message.getNickname() != null && message.getNickname().equals(currentUser)) {
+                return VIEW_TYPE_MY_MESSAGE; // 사용자의 메시지
+            } else {
+                return VIEW_TYPE_JOY_MESSAGE; // 조이의 메시지
+            }
         }
+    }
+
+    private boolean isDifferentDay(int position) {
+        if (position == 0) return true;
+
+        ChatMessage previousMessage = chatMessages.get(position - 1);
+        ChatMessage currentMessage = chatMessages.get(position);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String previousDate = sdf.format(previousMessage.getTimestamp().toDate());
+        String currentDate = sdf.format(currentMessage.getTimestamp().toDate());
+
+        return !previousDate.equals(currentDate);
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == 0) {
+        if (viewType == VIEW_TYPE_MY_MESSAGE) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mychat_row, parent, false);
             return new MyChatViewHolder(view);
-        } else {
+        } else if (viewType == VIEW_TYPE_JOY_MESSAGE) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.joychat_row, parent, false);
             return new JoyChatViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_date, parent, false);
+            return new DateViewHolder(view);
         }
     }
 
@@ -70,8 +92,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ChatMessage chatMessage = chatMessages.get(position);
         if (holder instanceof MyChatViewHolder) {
             ((MyChatViewHolder) holder).bind(chatMessage, profileImageUrl);
-        } else {
+        } else if (holder instanceof JoyChatViewHolder) {
             ((JoyChatViewHolder) holder).bind(chatMessage);
+        } else if (holder instanceof DateViewHolder) {
+            ((DateViewHolder) holder).bind(chatMessage);
         }
     }
 
@@ -147,8 +171,23 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 imgMessageJoy.setVisibility(View.GONE);
             }
 
-            // 프로필 이미지 로드
+            // 조이의 프로필 이미지 고정
             joyImage.setImageResource(R.drawable.app_icon);
+        }
+    }
+
+    static class DateViewHolder extends RecyclerView.ViewHolder {
+        TextView textDate;
+
+        DateViewHolder(View itemView) {
+            super(itemView);
+            textDate = itemView.findViewById(R.id.textDate);
+        }
+
+        void bind(ChatMessage chatMessage) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일 E요일", Locale.getDefault());
+            String date = sdf.format(chatMessage.getTimestamp().toDate());
+            textDate.setText(date);
         }
     }
 }

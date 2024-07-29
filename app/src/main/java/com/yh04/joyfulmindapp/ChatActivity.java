@@ -56,25 +56,16 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // 액션바 이름 변경
         getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // SharedPreferences에서 토큰과 이메일 가져오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         token = sp.getString("token", null);
         naverAccessToken = sp.getString("naverAccessToken", null);
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
-        email = sp.getString("email", null);  // 이메일 가져오기
-
-        Log.d("ChatActivity", "Token: " + token);
-        Log.d("ChatActivity", "Naver Access Token: " + naverAccessToken);
-        Log.d("ChatActivity", "Profile Image URL: " + profileImageUrl);
-        Log.d("ChatActivity", "Email: " + email);  // 이메일 로그 출력
+        email = sp.getString("email", null);
 
         if (token == null && naverAccessToken == null) {
-            // 토큰이 없는 경우 로그인 화면으로 이동
             Intent intent = new Intent(ChatActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -100,9 +91,6 @@ public class ChatActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         nickname = sp.getString("userNickname", "YourNickname");
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
-
-        Log.d("ChatActivity", "Fetched Nickname: " + nickname);
-        Log.d("ChatActivity", "Fetched Profile Image URL: " + profileImageUrl);
 
         chatAdapter = new ChatAdapter(chatMessages, nickname, profileImageUrl);
         recyclerView.setAdapter(chatAdapter);
@@ -133,7 +121,6 @@ public class ChatActivity extends AppCompatActivity {
                                             ChatMessage chatMessage = document.toObject(ChatMessage.class);
                                             allMessages.add(chatMessage);
                                         }
-                                        // 시간 순서대로 정렬
                                         Collections.sort(allMessages, (m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()));
                                         chatMessages.clear();
                                         chatMessages.addAll(allMessages);
@@ -152,14 +139,10 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // SharedPreferences에서 닉네임과 프로필 이미지 URL 불러오기
         SharedPreferences sp = getSharedPreferences(Config.SP_NAME, MODE_PRIVATE);
         nickname = sp.getString("userNickname", "YourNickname");
         profileImageUrl = sp.getString("profileImageUrl", DEFAULT_IMAGE);
-        Log.d("ChatActivity", "Updated Nickname: " + nickname);
-        Log.d("ChatActivity", "Updated Profile Image URL: " + profileImageUrl);
 
-        // 어댑터에 닉네임 및 프로필 이미지 URL 업데이트
         if (chatAdapter != null) {
             chatAdapter.setNickname(nickname);
             chatAdapter.setProfileImageUrl(profileImageUrl);
@@ -181,12 +164,10 @@ public class ChatActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Log.e("ChatActivity", "Error sending message", e));
             editChat.setText("");
 
-            // 화면에 사용자 메시지 추가
             chatMessages.add(chatMessage);
             chatAdapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(chatMessages.size() - 1);
 
-            // 새로운 메시지를 추가했으므로, 최신 메시지를 API로 전송
             sendToChatApi(chatMessage);
         }
     }
@@ -204,13 +185,10 @@ public class ChatActivity extends AppCompatActivity {
                     Log.d("ChatApi", "응답 메시지: " + chatResponse.getAnswer());
                     Log.d("ChatApi", "응답: " + chatResponse.toString());
 
-                    // ChatResponse를 ChatMessage로 변환하여 닉네임을 "조이"로 설정
-                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), email, Timestamp.now(), profileImageUrl);
+                    ChatMessage responseMessage = new ChatMessage("조이", chatResponse.getAnswer(), email, Timestamp.now(), "조이 프로필 이미지 URL");
 
-                    // 응답 메시지를 JoyChattingTest 컬렉션에 추가
                     db.collection("JoyChattingTest").add(responseMessage);
 
-                    // 화면에 조이의 메시지 추가
                     chatMessages.add(responseMessage);
                     chatAdapter.notifyDataSetChanged();
                     recyclerView.scrollToPosition(chatMessages.size() - 1);
