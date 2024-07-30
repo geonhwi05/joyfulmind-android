@@ -3,11 +3,17 @@ package com.yh04.joyfulmindapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,6 +54,10 @@ public class ChatActivity extends AppCompatActivity {
     private String naverAccessToken;
     private String profileImageUrl;
     private String email;
+    private Handler handler;
+    private Runnable typingRunnable;
+    private LinearLayout typingIndicatorContainer;
+    private View typingIndicatorView;
 
     private static final String DEFAULT_IMAGE = "https://firebasestorage.googleapis.com/v0/b/joyfulmindapp.appspot.com/o/profile_image%2Fdefaultprofileimg.png?alt=media&token=87768af9-03ef-4cc3-b801-ce17b9a1ece1";
 
@@ -75,6 +85,7 @@ public class ChatActivity extends AppCompatActivity {
         chatMessages = new ArrayList<>();
         editChat = findViewById(R.id.editChat);
         btnSend = findViewById(R.id.btnSend);
+        typingIndicatorContainer = findViewById(R.id.typingIndicatorContainer);
 
         db = FirebaseFirestore.getInstance();
 
@@ -85,6 +96,13 @@ public class ChatActivity extends AppCompatActivity {
         btnSend.setOnClickListener(v -> sendMessage());
 
         fetchUserProfile(); // 사용자 프로필 정보를 가져옴
+
+        handler = new Handler(Looper.getMainLooper());
+
+        // 타이핑 인디케이터 뷰 초기화
+        LayoutInflater inflater = LayoutInflater.from(this);
+        typingIndicatorView = inflater.inflate(R.layout.typing, typingIndicatorContainer, false);
+        typingIndicatorContainer.addView(typingIndicatorView);
     }
 
     private void fetchUserProfile() {
@@ -168,6 +186,7 @@ public class ChatActivity extends AppCompatActivity {
             chatAdapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(chatMessages.size() - 1);
 
+            showTypingIndicator();
             sendToChatApi(chatMessage);
         }
     }
@@ -180,6 +199,7 @@ public class ChatActivity extends AppCompatActivity {
         call.enqueue(new Callback<ChatResponse>() {
             @Override
             public void onResponse(Call<ChatResponse> call, Response<ChatResponse> response) {
+                hideTypingIndicator();
                 if (response.isSuccessful() && response.body() != null) {
                     ChatResponse chatResponse = response.body();
                     Log.d("ChatApi", "응답 메시지: " + chatResponse.getAnswer());
@@ -204,9 +224,49 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ChatResponse> call, Throwable throwable) {
+                hideTypingIndicator();
                 Log.e("ChatApi", "API 호출 실패: " + throwable.getMessage());
             }
         });
+    }
+
+    private void showTypingIndicator() {
+        typingIndicatorContainer.setVisibility(View.VISIBLE);
+        handler.post(typingRunnable = new Runnable() {
+            private int dotCount = 0;
+
+            @Override
+            public void run() {
+                TextView dot1 = typingIndicatorView.findViewById(R.id.dot1);
+                TextView dot2 = typingIndicatorView.findViewById(R.id.dot2);
+                TextView dot3 = typingIndicatorView.findViewById(R.id.dot3);
+
+                switch (dotCount) {
+                    case 0:
+                        dot1.setVisibility(View.VISIBLE);
+                        dot2.setVisibility(View.INVISIBLE);
+                        dot3.setVisibility(View.INVISIBLE);
+                        break;
+                    case 1:
+                        dot1.setVisibility(View.VISIBLE);
+                        dot2.setVisibility(View.VISIBLE);
+                        dot3.setVisibility(View.INVISIBLE);
+                        break;
+                    case 2:
+                        dot1.setVisibility(View.VISIBLE);
+                        dot2.setVisibility(View.VISIBLE);
+                        dot3.setVisibility(View.VISIBLE);
+                        break;
+                }
+                dotCount = (dotCount + 1) % 3;
+                handler.postDelayed(this, 500);
+            }
+        });
+    }
+
+    private void hideTypingIndicator() {
+        handler.removeCallbacks(typingRunnable);
+        typingIndicatorContainer.setVisibility(View.GONE);
     }
 
     @Override

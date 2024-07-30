@@ -1,18 +1,19 @@
 package com.yh04.joyfulmindapp;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -32,16 +33,12 @@ public class SongRecActivity extends AppCompatActivity {
     private TextView textViewResults;
     private LinearLayout songContainer;
     private SpotifyService spotifyService;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_rec);
-
-        // 액션바 이름 변경
-        getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         textViewResults = findViewById(R.id.textViewResults);
         songContainer = findViewById(R.id.songContainer);
@@ -62,11 +59,13 @@ public class SongRecActivity extends AppCompatActivity {
     }
 
     private void getRecommendedSongs(String emotion, int limit) {
+        showProgress();  // 프로그레스바 표시
         Call<SongResponse> call = spotifyService.getRecommendedSongs(emotion, limit);
 
         call.enqueue(new Callback<SongResponse>() {
             @Override
             public void onResponse(Call<SongResponse> call, Response<SongResponse> response) {
+                dismissProgress();  // 프로그레스바 숨기기
                 if (!response.isSuccessful()) {
                     textViewResults.setText("Code: " + response.code());
                     return;
@@ -104,6 +103,7 @@ public class SongRecActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<SongResponse> call, Throwable t) {
+                dismissProgress();  // 프로그레스바 숨기기
                 textViewResults.setText(t.getMessage());
             }
         });
@@ -118,12 +118,18 @@ public class SongRecActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
+    void showProgress() {
+        dialog = new Dialog(this);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(new ProgressBar(this));
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+
+    void dismissProgress() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
         }
-        return super.onOptionsItemSelected(item);
     }
 }

@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,7 +38,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.graphics.Color;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,11 +62,6 @@ public class DetailAnalysisActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_analysis);
-
-        // 액션바 이름 변경
-        getSupportActionBar().setTitle(" ");
-        // 액션바에 화살표 백버튼을 표시하는 코드
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
         pieChart = findViewById(R.id.pieChart);
@@ -102,7 +95,7 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         String chatData = getIntent().getStringExtra("chatData");
 
         if (chatData != null) {
-            showProgress();
+            showProgress(); // 여기서 프로그레스바를 보여줌
             analyzeSentiments(chatData.split("\n"));
         }
     }
@@ -128,7 +121,6 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         for (String message : messages) {
             analyzeSentiment(message);
         }
-        dismissProgress();
     }
 
     private void analyzeSentiment(String text) {
@@ -166,11 +158,13 @@ public class DetailAnalysisActivity extends AppCompatActivity {
                         }
                     }
                 }
+                dismissProgress(); // 여기서 프로그레스바를 닫음
             }
 
             @Override
             public void onFailure(Call<SentimentResponse> call, Throwable t) {
                 Log.e("DetailAnalysisActivity", "API call failed: " + t.getMessage(), t);
+                dismissProgress(); // 실패 시에도 프로그레스바를 닫음
             }
         });
     }
@@ -309,14 +303,5 @@ public class DetailAnalysisActivity extends AppCompatActivity {
         if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
