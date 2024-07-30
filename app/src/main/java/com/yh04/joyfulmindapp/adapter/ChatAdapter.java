@@ -51,10 +51,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return VIEW_TYPE_DATE;
         } else {
             ChatMessage message = chatMessages.get(position);
-            if (message.getNickname() != null && message.getNickname().equals(currentUser)) {
-                return VIEW_TYPE_MY_MESSAGE; // 사용자의 메시지
+            if (message.getNickname() != null && message.getNickname().equals("조이")) {
+                return VIEW_TYPE_JOY_MESSAGE; // 사용자의 메시지
             } else {
-                return VIEW_TYPE_JOY_MESSAGE; // 조이의 메시지
+                return VIEW_TYPE_MY_MESSAGE; // 조이의 메시지
             }
         }
     }

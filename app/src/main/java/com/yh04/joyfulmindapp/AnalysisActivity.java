@@ -95,7 +95,7 @@ public class AnalysisActivity extends AppCompatActivity {
                 intent.putExtra("chatData", chatData);
                 startActivity(intent);
             } else {
-                showSnackbar("먼저 날짜를 선택하여 데이터를 가져오세요.");
+                showSnackbar("데이터를 가져오는 중 오류가 발생했습니다.");
             }
         });
     }
@@ -130,7 +130,6 @@ public class AnalysisActivity extends AppCompatActivity {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots.isEmpty()) {
                             chatData = null;
-                            showSnackbar("선택한 날짜에 데이터가 없습니다.");
                         } else {
                             StringBuilder chatDataBuilder = new StringBuilder();
                             for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
