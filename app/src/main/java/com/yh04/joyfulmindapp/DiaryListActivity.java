@@ -136,7 +136,12 @@ public class DiaryListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        fetchAllDiaries(); // onResume에서 전체 일기 리스트를 다시 가져옵니다.
+        // 날짜에 맞는 일기를 가져오고, 날짜가 선택되어 있지 않으면 전체 일기를 가져옵니다
+        if (selectedStartDate != null || selectedEndDate != null) {
+            fetchDiariesForDateRange(selectedStartDate, selectedEndDate);
+        } else {
+            fetchAllDiaries();
+        }
     }
 
     @Override
@@ -146,8 +151,12 @@ public class DiaryListActivity extends AppCompatActivity {
             // 일기 작성 후에는 오늘 날짜의 일기를 가져옵니다.
             fetchDiariesForToday();
         } else if (requestCode == REQUEST_CODE_EDIT_DIARY && resultCode == RESULT_OK) {
-            // 일기 수정 후에는 전체 일기 리스트를 가져옵니다.
-            fetchAllDiaries();
+            // 일기 수정 후에는 날짜에 맞는 일기를 가져오고, 날짜가 선택되어 있지 않으면 전체 일기를 가져옵니다
+            if (selectedStartDate != null || selectedEndDate != null) {
+                fetchDiariesForDateRange(selectedStartDate, selectedEndDate);
+            } else {
+                fetchAllDiaries();
+            }
         }
     }
 
