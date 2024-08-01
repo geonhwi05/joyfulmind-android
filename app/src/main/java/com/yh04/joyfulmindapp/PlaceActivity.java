@@ -110,7 +110,7 @@ public class PlaceActivity extends AppCompatActivity {
 
         PlaceApi api = retrofit.create(PlaceApi.class); // PlaceApi 인터페이스 생성
 
-        // 공원 키워드로 장소 목록을 가져오는 API 호출
+        // 키워드로 장소 목록을 가져오는 API 호출
         Call<PlaceList> call = api.getPlaceList("ko", lat+","+lng, 2000, Config.PLACE_API_KEY, keyword);
 
         call.enqueue(new Callback<PlaceList>() {

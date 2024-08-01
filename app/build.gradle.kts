@@ -58,10 +58,10 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(files("libs\\com.skt.Tmap_1.76.jar"))
-    implementation(files("libs\\oauth-5.2.1-sources.jar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(files("libs\\oauth-5.2.1-sources.jar"))
 
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
 
@@ -97,7 +97,6 @@ dependencies {
 
     implementation("androidx.navigation:navigation-fragment:2.7.7")
     implementation("androidx.navigation:navigation-ui:2.7.7")
-
 
     implementation ("com.navercorp.nid:oauth:5.9.1")
 
