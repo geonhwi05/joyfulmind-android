@@ -15,15 +15,16 @@
 ### 기획 의도
 - 정부의 정신건강 및 자살률 문제 해결을 위한 심리 상담 서비스 제공
 - AI 기술을 활용한 접근성 높은 정신 건강 관리 서비스
+![기획 의도2](https://github.com/user-attachments/assets/ec73dcff-572b-4fd1-83a5-bd441e594450)
+
+
 
 ### 시장 분석
 - AI 챗봇 시장의 연평균 복합 성장률(CAGR) 성장 전망
 - 미국의 정신 건강 관리 챗봇 WOEBOT의 임상적 검증 사례
+![시장 분석2](https://github.com/user-attachments/assets/623fa64d-b882-4087-b6ea-ab244e504d3c)
 
-### 유사 서비스와의 차별점
-- **마인드 카페**: 익명 게시판과 상담 예약 시스템 제공
-- **하루콩**: 감정 분석을 통한 일기 시각화 및 기록
-- **조이풀 마인드**: 감정 분석 결과 기반 노래, 산책 코스 추천
+
 
 ## 개발 환경
 - **Database**: MySQL, Firestore
@@ -76,4 +77,4 @@
 - [ERD Diagram](https://dbdiagram.io/d/6684a0bd9939893daee0eec9)
 - [API Specification](https://documenter.getpostman.com/view/35043994/2sA3e5d81u)
 
-Thank you for using 조이풀마인드!
+
