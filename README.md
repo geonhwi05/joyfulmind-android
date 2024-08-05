@@ -47,6 +47,9 @@
 - RDBMS: 사용자 회원 정보와 일기 정보 저장
 - NoSQL: 채팅 메시지 데이터 및 사용자 프로필 이미지 저장
 
+- ![image](https://github.com/user-attachments/assets/4d792c28-8794-4a1c-a035-82c1bd005bbc)
+
+
 ## 사용한 오픈 API
 - **네이버 로그인 API**: 네이버 아이디 연동
 - **Google 주변 지역 검색 API**: 산책로 추천 기능 구현
@@ -60,7 +63,12 @@
 
 ### 챗봇 데이터셋 가공
 - AI-HUB 웰니스 상담 데이터 사용
+- https://aihub.or.kr/aihubdata/data/view.do?currMenu=120&topMenu=100&aihubDataSe=extrldata&dataSetSn=267
 - 텍스트 전처리 및 임베딩 데이터 생성
+
+  
+![image](https://github.com/user-attachments/assets/1e54ab0e-7c36-4788-96ed-429efdcf5a7e)
+
 
 ### 감정 분류 모델
 - pandas를 사용한 데이터 호출 및 전처리
