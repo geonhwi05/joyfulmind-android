@@ -41,6 +41,32 @@
 ![스크린샷 2024-08-06 093626](https://github.com/user-attachments/assets/44d7e9e5-8294-4231-a306-6e51c6eec651)
 
 
+## 📌핵심 기능
+#### 1. 일상 대화 챗봇
+<img width="202" alt="5sh6sh" src="https://github.com/user-attachments/assets/f1584b7a-a36a-44c2-92b2-668970fa2325">
+
+- AI 심리 상담: 사용자가 입력한 메시지에 대해 AI 챗봇이 가장 적절한 답변을 제공합니다.
+- 실시간 채팅: 사용자는 실시간으로 챗봇과 대화할 수 있으며, 모든 대화는 데이터베이스에 저장됩니다.
+
+#### 2. 감정 분석
+![KakaoTalk_20240806_101714416_01](https://github.com/user-attachments/assets/9af6dc4b-001d-429c-8033-56f160fc3d2b)
+
+- 감정 레이블링: 사용자가 입력한 문장을 AI 모델이 감정 레이블로 분류합니다.
+- 감정 분석 결과 제공: 분석된 감정 결과를 시각적으로 제공하고, 사용자의 감정 변화를 추적합니다.
+- 감정 기반 피드백: 분석된 감정 결과를 바탕으로 맞춤형 피드백과 추천 서비스를 제공합니다.
+
+#### 3. 산책로 추천
+<img width="202" alt="ddddddd" src="https://github.com/user-attachments/assets/f600367f-be65-4c3a-a31c-131c2516c746"> <img width="202" alt="KakaoTalk_20240806_101714416_03" src="https://github.com/user-attachments/assets/8fd30188-a1ed-438f-9e6c-b35afeac1d90"> 
+
+- 산책로 정보 제공: GPS 위치 기반으로 산책로 정보를 제공합니다. 소요 시간, 거리, 위치 등의 상세 정보를 포함합니다.
+
+#### 4. 감정 분석 결과에 따른 노래 추천
+![KakaoTalk_20240806_101714416_02](https://github.com/user-attachments/assets/897584f7-0077-47eb-a2e0-bd84807348d9)
+
+- 감정 기반 노래 추천: 사용자의 감정 분석 결과를 바탕으로 기분 전환에 도움이 될 만한 노래를 추천합니다.
+- 추천 트랙: 특정 감정에 맞는 아티스트와 곡을 시드로 하여 유사한 스타일의 음악을 추천합니다.
+
+
 ## 프로젝트 설계
 ### 🤖AI 심리 상담 챗봇
 - SBERT 모델을 사용한 문장 임베딩 및 유사도 계산
