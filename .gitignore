@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignore the config directory
+/app/src/main/java/com/yh04/joyfulmindapp/config/
